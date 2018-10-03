@@ -1,0 +1,94 @@
+apply plugin: 'java'
+apply plugin: 'kotlin'
+apply plugin: 'maven'
+apply plugin: 'org.jmailen.kotlinter'
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'kotlin'
+
+group = 'com.mongodb.kafka'
+version = '1.0-SNAPSHOT'
+
+buildscript {
+    ext {
+        kotlinVersion = '1.2.61'
+        kotlinLoggingVersion = '1.4.8'
+    }
+
+    repositories {
+        mavenCentral()
+        jcenter()
+        maven { url 'https://jitpack.io' }
+        maven { url 'https://plugins.gradle.org/m2/' }
+        maven { url 'http://packages.confluent.io/maven/' }
+        maven { url 'http://repo.maven.apache.org/maven2' }
+    }
+
+    dependencies {
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.2.61'
+        classpath 'gradle.plugin.org.jmailen.gradle:kotlinter-gradle:1.12.0'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.3'
+    }
+}
+
+description = '''MongoDB Kafka Connector'''
+archivesBaseName = "$productName-$name"
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+task copyJarToTarget(type: Copy, dependsOn:[jar, shadowJar]) {
+    description 'Copies jar files to target directory'
+    copy {
+        from 'build/libs'
+        into 'target'
+        include '**/*.jar'
+    }
+}
+
+repositories {
+    maven { url 'http://packages.confluent.io/maven/' }
+    maven { url 'http://repo.maven.apache.org/maven2' }
+    mavenCentral()
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
+    compile group: 'org.mongodb', name: 'mongo-java-driver', version:'3.8.1'
+    compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    compile "ch.qos.logback:logback-classic:1.2.3"
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+    compile "io.github.microutils:kotlin-logging:$kotlinLoggingVersion"
+
+    compileOnly group: 'org.apache.kafka', name: 'connect-api', version:'0.10.1.1'
+    compileOnly group: 'org.apache.kafka', name: 'connect-json', version:'0.10.1.1'
+    compileOnly group: 'io.confluent', name: 'kafka-connect-avro-converter', version:'3.1.1'
+
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version:'5.1.0'
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-params', version:'5.1.0'
+    testCompile group: 'org.junit.platform', name: 'junit-platform-runner', version:'1.1.0'
+    testCompile group: 'org.junit.platform', name: 'junit-platform-console', version:'1.1.0'
+    testCompile group: 'org.apache.kafka', name: 'connect-api', version:'1.0.1'
+    testCompile group: 'org.apache.kafka', name: 'kafka_2.12', version: '2.0.0'
+    testCompile group: 'org.apache.curator', name: 'curator-test', version: '4.0.1'
+    testCompile group: 'com.squareup.okhttp3', name: 'okhttp', version: '3.9.1'
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = '1.8'
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = '1.8'
+}
+
+kotlinter {
+    indentSize = 4
+    continuationIndentSize = 4
+    reporters = ['checkstyle', 'plain', 'html']
+}
+
+lintKotlinMain {
+    exclude '**/vendors/*'
+}
+
+lintKotlinTest {
+    exclude '**/vendors/*'
+}
