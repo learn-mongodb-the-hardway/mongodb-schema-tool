@@ -1,6 +1,10 @@
 package com.mconsulting.mrelational
 
 import org.bson.Document
+import org.bson.codecs.BsonValueCodecProvider
+import org.bson.codecs.DocumentCodecProvider
+import org.bson.codecs.ValueCodecProvider
+import org.bson.codecs.configuration.CodecRegistries
 import java.util.*
 
 @DslMarker
@@ -125,3 +129,9 @@ class ValueHelper(val name: String? = null, val value: Any?) : FieldCollectionHe
 }
 
 class PrimitiveField(override val name: String, val value: Any?): Field
+
+val registry = CodecRegistries.fromProviders(
+    DocumentCodecProvider(),
+    BsonValueCodecProvider(),
+    ValueCodecProvider()
+)
