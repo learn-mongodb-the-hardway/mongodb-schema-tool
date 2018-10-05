@@ -67,6 +67,41 @@ class SchemaAnalyzerTest {
         println()
     }
 
+    @Test
+    fun shouldMergeArrayTypes() {
+        // Create two simple documents
+        val documents = listOf(document {
+            arrayOf("b") {
+                value("hello world")
+                documentOf {
+                    field("c", 200)
+                }
+            }
+        }, document {
+            arrayOf("b") {
+                value(100)
+                documentOf {
+                    field("c", 200)
+                }
+                documentOf {
+                    field("d", "hey")
+                }
+                documentOf {
+                    field("c", 500)
+                }
+                documentOf {
+                    field("c", "reddit")
+                }
+            }
+        }).map { it.toBsonDocument(BsonDocument::class.java, registry) }
+
+        println(documents.first().toJson(JsonWriterSettings(true)))
+
+        // Create an analyser instance and analyze the documents
+        val schema = SchemaAnalyzer().process(documents)
+        println()
+    }
+
     companion object {
         lateinit var client: MongoClient
         lateinit var db: MongoDatabase

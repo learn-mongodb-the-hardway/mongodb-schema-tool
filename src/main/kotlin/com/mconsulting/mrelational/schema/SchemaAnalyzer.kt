@@ -110,7 +110,9 @@ class SchemaArray(val name: String? = null): Node {
                 value.forEach {
                     node.addField(it.key, it.value)
                 }
-                nodes += node
+
+                // Add the node if it does not exist
+                nodes.firstOrNull { it == node } ?: nodes.add(node)
             }
 
             is BsonArray -> {
@@ -118,19 +120,39 @@ class SchemaArray(val name: String? = null): Node {
                 value.forEach {
                     node.addElement(it)
                 }
-                nodes += node
+
+                // Add the node if it does not exist
+                nodes.firstOrNull { it == node } ?: nodes.add(node)
             }
 
             else -> {
-                nodes += SchemaNode(type = value.bsonType)
+                val node = SchemaNode(type = value.bsonType)
+                // Add the node if it does not exist
+                nodes.firstOrNull { it == node } ?: nodes.add(node)
             }
         }
+    }
+
+    fun merge(value: SchemaArray) {
+        println()
+//        types.add(value.bsonType)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other == null) return false
+        if (!(other is SchemaArray)) return false
+        if (other.types.intersect(this.types).isNotEmpty()) return false
+        if (other.nodes.size != this.nodes.size) return false
+        if (other.nodes.isEmpty()) return true
+        return other.nodes.map { node ->
+            this.nodes.firstOrNull { it == node } != null
+        }.reduce { acc, b -> acc.and(b) }
     }
 }
 
 class SchemaNode(val name: String? = null, val type: BsonType? = null): Node {
     var count = 1
-    private val nodes = mutableMapOf<String, Node>()
+    private val nodes = mutableMapOf<String, MutableList<Node>>()
     val types = mutableSetOf<BsonType>()
 
     fun addField(key: String, value: BsonValue) {
@@ -138,6 +160,11 @@ class SchemaNode(val name: String? = null, val type: BsonType? = null): Node {
     }
 
     private fun mapFields(value: BsonValue, key: String) {
+        // Do we not have an entry, add it
+        if (!nodes.containsKey(key)) {
+            nodes[key] = mutableListOf()
+        }
+
         when (value) {
             is BsonDocument -> {
                 val node = SchemaNode(key, BsonType.DOCUMENT)
@@ -145,7 +172,10 @@ class SchemaNode(val name: String? = null, val type: BsonType? = null): Node {
                     node.addField(it.key, it.value)
                 }
 
-                nodes[key] = node
+                // Does this specific node not exist
+                if (nodes[key]!!.firstOrNull { it == node } == null) {
+                    nodes[key]!!.add(node)
+                }
             }
 
             is BsonArray -> {
@@ -154,21 +184,39 @@ class SchemaNode(val name: String? = null, val type: BsonType? = null): Node {
                     node.addElement(it)
                 }
 
-                nodes[key] = node
+                // Check if we have a BsonArray type already
+                // Does this specific node not exist
+                if (nodes[key]!!.filterIsInstance<SchemaArray>().isNotEmpty()) {
+                    nodes[key]!!.filterIsInstance<SchemaArray>().first().merge(node)
+                } else if (nodes[key]!!.firstOrNull { it == node } == null) {
+                    nodes[key]!!.add(node)
+                }
             }
 
             else -> {
-                if (nodes.containsKey(key)) {
-                    (nodes[key]!! as SchemaNode).merge(value)
-                } else {
-                    nodes[key] = SchemaNode(key, value.bsonType)
+                val node = SchemaNode(key, value.bsonType)
+
+                // Does this specific node not exist
+                if (nodes[key]!!.firstOrNull { it == node } == null) {
+                    nodes[key]!!.add(node)
                 }
             }
         }
     }
 
-    private fun merge(value: BsonValue) {
-        types.add(value.bsonType)
+    private fun merge(value: SchemaNode) {
+//        types.add(value.bsonType)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other == null) return false
+        if (!(other is SchemaNode)) return false
+        if (other.types.intersect(this.types).isNotEmpty()) return false
+        if (other.nodes.size != this.nodes.size) return false
+        if (other.nodes.isEmpty()) return true
+        return other.nodes.map {
+            this.nodes[it.key] == it.value
+        }.reduce { acc, b -> acc.and(b) }
     }
 }
 
