@@ -5,144 +5,141 @@ import org.bson.BsonDocument
 import org.bson.BsonType
 import org.bson.BsonValue
 
-//interface DocumentVisitor {
-//    fun visit(array: BsonArray)
-//    fun visit(document: BsonDocument)
-//    fun visit(value: BsonValue)
-//}
+interface Node {
+    val type: BsonType
+    var count: Long
 
-//interface Element {
-//    val name: String?
-//}
-//
-//class FieldType(val type: BsonType) {
-//    override fun equals(other: Any?): Boolean {
-//        if (!(other is FieldType)) return false
-//        return other == type
-//    }
-//
-//    fun merge(fieldType: FieldType) {
-//    }
-//}
-//
-//class Field(override val name: String, type: BsonType? = null): Element {
-//    private val types = mutableSetOf<FieldType>()
-//
-//    init {
-//        if (type != null) {
-//            types.add(FieldType(type))
-//        }
-//    }
-//
-//    fun merge(field: Field) {
-//        field.types.forEach { fieldType ->
-//            if (types.firstOrNull { fieldType.type == it.type } != null) {
-//                types.first { it.type == fieldType.type }.merge(fieldType)
-//            } else {
-//                types.add(fieldType)
-//            }
-//        }
-//    }
-//}
-//
-//class SchemaDocument(override val name: String? = null): Element {
-//    private val fields = mutableMapOf<String, Field>()
-//
-//    fun addField(field: Element) {
-//        if (fields.containsKey(field.name)) {
-//            fields[field.name]!!.merge(field)
-//        } else {
-//            fields[field.name] = field
-//        }
-//    }
-//}
-//
-//class SchemaArray: Element {
-//
-//}
-//
-//class SchemaAnalyzerVisitor(schemaDocument: SchemaDocument)  : DocumentVisitor {
-//    private val path = mutableListOf(schemaDocument)
-//
-//    override fun visit(array: BsonArray) {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-//    }
-//
-//    override fun visit(document: BsonDocument) {
-//        document.forEach { key, value ->
-//            when (value) {
-//                is BsonDocument -> {
-//                    val doc = SchemaDocument(key)
-//                    path.last().addField(doc)
-//                }
-//
-//                is BsonArray -> {
-//
-//                }
-//
-//                else -> {
-//                    path.last().addField(Field(key, value.bsonType))
-//                }
-//            }
-//        }
-//    }
-//
-//    override fun visit(value: BsonValue) {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-//    }
-//}
-
-class Schema {
-    val node: Node = SchemaNode()
+    fun merge(node: Node)
+    fun inc(size: Long)
 }
 
-interface Node
+class Schema(
+    private val options: SchemaAnalyzerOptions = SchemaAnalyzerOptions(),
+    val node: Node = SchemaNode(options = options, type = BsonType.DOCUMENT, count = 0)) {
 
-class SchemaArray(val name: String? = null): Node {
-    var count = 1
-    private val nodes = mutableListOf<Node>()
-    val types = mutableSetOf<BsonType>()
+    override fun equals(other: Any?): Boolean {
+        if (other == null) return false
+        if (other !is Schema) return false
+        return options == other.options && node == other.node
+    }
+}
+
+class SchemaArray(
+    val name: String? = null,
+    val options: SchemaAnalyzerOptions = SchemaAnalyzerOptions(),
+    val nodes: MutableList<Node> = mutableListOf(),
+    val types: MutableSet<BsonType> = mutableSetOf(),
+    override var count: Long = 1
+): Node {
+    override fun inc(size: Long) {
+        count += size
+        nodes.forEach { it.inc(size) }
+    }
+
+    override val type = BsonType.ARRAY
 
     fun addElement(value: BsonValue) {
         when (value) {
             is BsonDocument -> {
-                val node = SchemaNode(type = value.bsonType)
+                val node = SchemaNode(type = value.bsonType, options = options)
                 value.forEach {
                     node.addField(it.key, it.value)
                 }
 
+                // Add type
+                types += BsonType.DOCUMENT
+                // Get the node
+                val tNode = nodes.firstOrNull { it == node }
                 // Add the node if it does not exist
-                nodes.firstOrNull { it == node } ?: nodes.add(node)
+                if (tNode == null) {
+                    nodes.add(node)
+                } else if (options.mergeDocuments) {
+                    tNode.merge(node)
+                } else {
+                    tNode.inc(node.count)
+                }
             }
 
             is BsonArray -> {
-                val node = SchemaArray()
+                val node = SchemaArray(options = options)
                 value.forEach {
                     node.addElement(it)
                 }
 
+                // Add type
+                types += BsonType.ARRAY
+                // Get the node
+                val tNode = nodes.firstOrNull { it == node }
                 // Add the node if it does not exist
-                nodes.firstOrNull { it == node } ?: nodes.add(node)
+                if (tNode == null) {
+                    nodes.add(node)
+                } else if (options.mergeDocuments) {
+                    tNode.merge(node)
+                } else {
+                    tNode.inc(node.count)
+                }
             }
 
             else -> {
-                val node = SchemaNode(type = value.bsonType)
+                val node = SchemaNode(type = value.bsonType, options = options)
+                // Add type
+                types += node.type
+                // Get the node
+                val tNode = nodes.firstOrNull { it == node }
                 // Add the node if it does not exist
-                nodes.firstOrNull { it == node } ?: nodes.add(node)
+                if (tNode == null) {
+                    nodes.add(node)
+                } else {
+                    tNode.inc(node.count)
+                }
             }
         }
     }
 
-    fun merge(value: SchemaArray) {
-        println()
-//        types.add(value.bsonType)
+    override fun merge(value: Node) {
+        // Update the number of times we have seen this element
+        count += 1
+
+        if (value !is SchemaArray) {
+            throw Exception("cannot merge SchemaArray with SchemaNode")
+        }
+
+        // Merge the elements
+        value.nodes.forEach { node ->
+
+            // We are going to merge the documents into a single
+            // global document type
+            if (options.mergeDocuments
+                && node is SchemaNode
+                && node.type == BsonType.DOCUMENT) {
+                val documentNode = nodes
+                    .filterIsInstance<SchemaNode>()
+                    .firstOrNull { it.type == BsonType.DOCUMENT }
+                if (documentNode == null) {
+                    nodes += node
+                    types += node.type
+                } else {
+                    documentNode.merge(node)
+                }
+            } else {
+                // Get the node
+                val tNode = nodes.firstOrNull { it == node }
+                // Add the node if it does not exist
+                if (tNode == null) {
+                    nodes += node
+                    types += node.type
+                } else {
+                    tNode.inc(node.count)
+                }
+            }
+        }
     }
 
     override fun equals(other: Any?): Boolean {
         if (other == null) return false
-        if (!(other is SchemaArray)) return false
-        if (other.types.intersect(this.types).isNotEmpty()) return false
+        if (other !is SchemaArray) return false
         if (other.nodes.size != this.nodes.size) return false
+        if (other.types.intersect(this.types).size != this.types.size) return false
         if (other.nodes.isEmpty()) return true
         return other.nodes.map { node ->
             this.nodes.firstOrNull { it == node } != null
@@ -150,10 +147,18 @@ class SchemaArray(val name: String? = null): Node {
     }
 }
 
-class SchemaNode(val name: String? = null, val type: BsonType? = null): Node {
-    var count = 1
-    private val nodes = mutableMapOf<String, MutableList<Node>>()
-    val types = mutableSetOf<BsonType>()
+class SchemaNode(
+    val name: String? = null,
+    override val type: BsonType,
+    val options: SchemaAnalyzerOptions = SchemaAnalyzerOptions(),
+    val nodes: MutableMap<String, MutableList<Node>> = mutableMapOf(),
+    val types: MutableSet<BsonType> = mutableSetOf(),
+    override var count: Long = 1
+): Node {
+    override fun inc(size: Long) {
+        count += size
+        nodes.values.forEach { it.forEach { it.inc(size) } }
+    }
 
     fun addField(key: String, value: BsonValue) {
         mapFields(value, key)
@@ -167,19 +172,23 @@ class SchemaNode(val name: String? = null, val type: BsonType? = null): Node {
 
         when (value) {
             is BsonDocument -> {
-                val node = SchemaNode(key, BsonType.DOCUMENT)
+                val node = SchemaNode(key, BsonType.DOCUMENT, options)
                 value.forEach {
                     node.addField(it.key, it.value)
                 }
 
+                val tnode = nodes[key]!!.firstOrNull { it == node }
                 // Does this specific node not exist
-                if (nodes[key]!!.firstOrNull { it == node } == null) {
+                if (tnode == null) {
                     nodes[key]!!.add(node)
+                    types += node.type
+                } else {
+                    tnode.inc(node.count)
                 }
             }
 
             is BsonArray -> {
-                val node = SchemaArray(key)
+                val node = SchemaArray(name = key, options = options)
                 value.forEach {
                     node.addElement(it)
                 }
@@ -188,31 +197,81 @@ class SchemaNode(val name: String? = null, val type: BsonType? = null): Node {
                 // Does this specific node not exist
                 if (nodes[key]!!.filterIsInstance<SchemaArray>().isNotEmpty()) {
                     nodes[key]!!.filterIsInstance<SchemaArray>().first().merge(node)
-                } else if (nodes[key]!!.firstOrNull { it == node } == null) {
-                    nodes[key]!!.add(node)
+                } else {
+                    val tnode = nodes[key]!!.firstOrNull { it == node }
+                    // Does this specific node not exist
+                    if (tnode == null) {
+                        nodes[key]!!.add(node)
+                        types += node.type
+                    } else {
+                        tnode.inc(node.count)
+                    }
                 }
             }
 
             else -> {
-                val node = SchemaNode(key, value.bsonType)
+                val node = SchemaNode(key, value.bsonType, options)
 
+                val tnode = nodes[key]!!.firstOrNull { it == node }
                 // Does this specific node not exist
-                if (nodes[key]!!.firstOrNull { it == node } == null) {
+                if (tnode == null) {
                     nodes[key]!!.add(node)
+                    types += node.type
+                } else {
+                    tnode.inc(node.count)
                 }
             }
         }
     }
 
-    private fun merge(value: SchemaNode) {
-//        types.add(value.bsonType)
+    override fun merge(value: Node) {
+        // Update the number of times we have seen this element
+        count += 1
+
+        if (value !is SchemaNode) {
+            throw Exception("cannot merge SchemaNode with SchemaArray")
+        }
+
+        // Merge the elements
+        value.nodes.forEach { key, list ->
+            if (!this.nodes.containsKey(key)) {
+                this.nodes[key] = list.toMutableList()
+                this.types += list.map { it.type }
+            } else {
+                val tlist = this.nodes[key]!!
+                list.forEach {  node ->
+                    if (!options.mergeDocuments && !tlist.contains(node)) {
+                        tlist += node
+                        types += node.type
+                    } else if (options.mergeDocuments
+                        && node is SchemaNode
+                        && node.type == BsonType.DOCUMENT) {
+                        val doc = tlist
+                            .filterIsInstance<SchemaNode>()
+                            .firstOrNull()
+                        if (doc != null) {
+                            doc.merge(node)
+                        } else {
+                            tlist += node
+                            types += node.type
+                        }
+                    } else if (!tlist.contains(node)) {
+                        tlist += node
+                        types += node.type
+                    } else if (tlist.contains(node)) {
+                        tlist.first { it == node }.count += 1
+                    }
+                }
+            }
+        }
     }
 
     override fun equals(other: Any?): Boolean {
         if (other == null) return false
-        if (!(other is SchemaNode)) return false
-        if (other.types.intersect(this.types).isNotEmpty()) return false
+        if (other !is SchemaNode) return false
         if (other.nodes.size != this.nodes.size) return false
+        if (other.types.intersect(this.types).size != this.types.size) return false
+        if (other.type != this.type) return false
         if (other.nodes.isEmpty()) return true
         return other.nodes.map {
             this.nodes[it.key] == it.value
@@ -220,9 +279,11 @@ class SchemaNode(val name: String? = null, val type: BsonType? = null): Node {
     }
 }
 
-class SchemaAnalyzer {
-    val schema = Schema()
-    val path = mutableListOf(schema.node)
+data class SchemaAnalyzerOptions(val mergeDocuments: Boolean = false)
+
+class SchemaAnalyzer(options: SchemaAnalyzerOptions = SchemaAnalyzerOptions()) {
+    private val schema = Schema(options)
+    private val path = mutableListOf(schema.node)
 
     fun process(document: BsonDocument) : Schema {
         document.forEach {
@@ -237,6 +298,7 @@ class SchemaAnalyzer {
             }
         }
 
+        schema.node.count += 1
         return schema
     }
 
@@ -245,15 +307,3 @@ class SchemaAnalyzer {
         return schema
     }
 }
-
-//fun BsonDocument.accept(visitor: DocumentVisitor) {
-//    visitor.visit(this)
-//}
-//
-//fun BsonArray.accept(visitor: DocumentVisitor) {
-//    visitor.visit(this)
-//}
-//
-//fun BsonValue.accept(visitor: DocumentVisitor) {
-//    visitor.visit(this)
-//}

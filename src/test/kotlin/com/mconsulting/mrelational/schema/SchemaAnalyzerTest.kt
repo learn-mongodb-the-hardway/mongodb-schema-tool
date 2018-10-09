@@ -7,9 +7,11 @@ import com.mongodb.MongoClientURI
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.MongoDatabase
 import org.bson.BsonDocument
+import org.bson.BsonType
 import org.bson.Document
 import org.bson.json.JsonWriterSettings
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
@@ -95,11 +97,143 @@ class SchemaAnalyzerTest {
             }
         }).map { it.toBsonDocument(BsonDocument::class.java, registry) }
 
-        println(documents.first().toJson(JsonWriterSettings(true)))
+//        println(documents.first().toJson(JsonWriterSettings(true)))
 
         // Create an analyser instance and analyze the documents
         val schema = SchemaAnalyzer().process(documents)
-        println()
+        assertEquals(Schema(node = SchemaNode(
+            type = BsonType.DOCUMENT,
+            count = 2,
+            types = mutableSetOf(BsonType.ARRAY),
+            nodes = mutableMapOf(
+                "b" to mutableListOf<Node>(
+                    SchemaArray(
+                        name = "b",
+                        count = 2,
+                        types = mutableSetOf(BsonType.STRING, BsonType.DOCUMENT, BsonType.INT32),
+                        nodes = mutableListOf(
+                            SchemaNode(name = null, type = BsonType.STRING, count = 1),
+                            SchemaNode(
+                                name = null,
+                                type = BsonType.DOCUMENT,
+                                types = mutableSetOf(BsonType.INT32),
+                                count = 3,
+                                nodes = mutableMapOf(
+                                    "c" to mutableListOf<Node>(SchemaNode(
+                                        name = "c",
+                                        count = 3,
+                                        type = BsonType.INT32))
+                                )
+                            ),
+                            SchemaNode(name = null, type = BsonType.INT32, count = 1),
+                            SchemaNode(
+                                name = null,
+                                type = BsonType.DOCUMENT,
+                                types = mutableSetOf(BsonType.STRING),
+                                count = 1,
+                                nodes = mutableMapOf(
+                                    "d" to mutableListOf<Node>(SchemaNode(
+                                        name = "d",
+                                        count = 1,
+                                        type = BsonType.STRING))
+                                )
+                            ),
+                            SchemaNode(
+                                name = null,
+                                type = BsonType.DOCUMENT,
+                                types = mutableSetOf(BsonType.STRING),
+                                count = 1,
+                                nodes = mutableMapOf(
+                                    "c" to mutableListOf<Node>(SchemaNode(
+                                        name = "c",
+                                        count = 1,
+                                        type = BsonType.STRING))
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        )), schema)
+    }
+
+    @Test
+    fun shouldMergeArrayDocumentTypes() {
+        // Create two simple documents
+        val documents = listOf(document {
+            arrayOf("b") {
+                value("hello world")
+                documentOf {
+                    field("c", 200)
+                }
+            }
+        }, document {
+            arrayOf("b") {
+                value(100)
+                documentOf {
+                    field("c", 200)
+                }
+                documentOf {
+                    field("d", "hey")
+                }
+                documentOf {
+                    field("c", 500)
+                }
+                documentOf {
+                    field("c", "reddit")
+                }
+            }
+        }).map { it.toBsonDocument(BsonDocument::class.java, registry) }
+
+//        println(documents.first().toJson(JsonWriterSettings(true)))
+
+        // Options
+        val options = SchemaAnalyzerOptions(true)
+
+        // Create an analyser instance and analyze the documents
+        val schema = SchemaAnalyzer(options).process(documents)
+        assertEquals(Schema(options = options, node = SchemaNode(
+            type = BsonType.DOCUMENT,
+            count = 2,
+            types = mutableSetOf(BsonType.ARRAY),
+            nodes = mutableMapOf(
+                "b" to mutableListOf<Node>(
+                    SchemaArray(
+                        name = "b",
+                        options = options,
+                        count = 2,
+                        types = mutableSetOf(BsonType.STRING, BsonType.DOCUMENT, BsonType.INT32),
+                        nodes = mutableListOf(
+                            SchemaNode(name = null, options = options, type = BsonType.STRING, count = 1),
+                            SchemaNode(
+                                name = null,
+                                options = options,
+                                type = BsonType.DOCUMENT,
+                                types = mutableSetOf(BsonType.INT32, BsonType.STRING),
+                                count = 5,
+                                nodes = mutableMapOf(
+                                    "c" to mutableListOf<Node>(SchemaNode(
+                                        name = "c",
+                                        options = options,
+                                        count = 3,
+                                        type = BsonType.INT32), SchemaNode(
+                                        name = "c",
+                                        options = options,
+                                        count = 1,
+                                        type = BsonType.STRING)),
+                                    "d" to mutableListOf<Node>(SchemaNode(
+                                        name = "d",
+                                        options = options,
+                                        count = 1,
+                                        type = BsonType.STRING))
+                                )
+                            ),
+                            SchemaNode(name = null, options = options, type = BsonType.INT32, count = 1)
+                        )
+                    )
+                )
+            )
+        )), schema)
     }
 
     companion object {
