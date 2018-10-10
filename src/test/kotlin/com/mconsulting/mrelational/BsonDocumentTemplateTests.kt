@@ -63,6 +63,5 @@ class BsonDocumentTemplateTests {
                     )
                 )))
             , doc.toBsonDocument(BsonDocument::class.java, registry))
-//        println(doc.toJson(JsonWriterSettings(true)))
     }
 }

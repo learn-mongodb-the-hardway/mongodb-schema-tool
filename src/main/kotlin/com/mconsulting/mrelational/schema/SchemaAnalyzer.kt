@@ -14,13 +14,18 @@ interface Node {
 }
 
 class Schema(
+    val db: String,
+    val collection: String,
     private val options: SchemaAnalyzerOptions = SchemaAnalyzerOptions(),
     val node: Node = SchemaNode(options = options, type = BsonType.DOCUMENT, count = 0)) {
 
     override fun equals(other: Any?): Boolean {
         if (other == null) return false
         if (other !is Schema) return false
-        return options == other.options && node == other.node
+        return db == other.db
+            && collection == other.collection
+            && options == other.options
+            && node == other.node
     }
 }
 
@@ -281,8 +286,11 @@ class SchemaNode(
 
 data class SchemaAnalyzerOptions(val mergeDocuments: Boolean = false)
 
-class SchemaAnalyzer(options: SchemaAnalyzerOptions = SchemaAnalyzerOptions()) {
-    private val schema = Schema(options)
+class SchemaAnalyzer(
+    val db: String,
+    val collection: String,
+    options: SchemaAnalyzerOptions = SchemaAnalyzerOptions()) {
+    private val schema = Schema(db, collection, options)
     private val path = mutableListOf(schema.node)
 
     fun process(document: BsonDocument) : Schema {

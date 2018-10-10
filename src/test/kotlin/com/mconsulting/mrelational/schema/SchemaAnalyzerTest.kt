@@ -28,8 +28,22 @@ class SchemaAnalyzerTest {
         }).map { it.toBsonDocument(BsonDocument::class.java, registry) }
 
         // Create an analyser instance and analyze the documents
-        val schema = SchemaAnalyzer().process(documents)
-        println()
+        val schema = SchemaAnalyzer("db", "coll").process(documents)
+        assertEquals(Schema(db = "db", collection = "coll", node = SchemaNode(
+            type = BsonType.DOCUMENT,
+            count = 2,
+            types = mutableSetOf(BsonType.INT32, BsonType.STRING),
+            nodes = mutableMapOf(
+                "a" to mutableListOf<Node>(SchemaNode(
+                    name = "a", count = 1, type = BsonType.INT32
+                ), SchemaNode(
+                    name = "a", count = 1, type = BsonType.STRING
+                )),
+                "b" to mutableListOf<Node>(SchemaNode(
+                    name = "b", count = 1, type = BsonType.STRING
+                ))
+            )
+        )), schema)
     }
 
     @Test
@@ -42,11 +56,24 @@ class SchemaAnalyzerTest {
             }
         }).map { it.toBsonDocument(BsonDocument::class.java, registry) }
 
-        println(documents.first().toJson(JsonWriterSettings(true)))
-
         // Create an analyser instance and analyze the documents
-        val schema = SchemaAnalyzer().process(documents)
-        println()
+        val schema = SchemaAnalyzer("db", "coll").process(documents)
+        assertEquals(Schema(db = "db", collection = "coll", node = SchemaNode(
+            type = BsonType.DOCUMENT,
+            count = 2,
+            types = mutableSetOf(BsonType.INT32, BsonType.DOCUMENT),
+            nodes = mutableMapOf(
+                "a" to mutableListOf<Node>(SchemaNode(
+                    name = "a", count = 1, type = BsonType.INT32
+                )),
+                "b" to mutableListOf<Node>(SchemaNode(
+                    name = "b", count = 1, type = BsonType.DOCUMENT, types = mutableSetOf(BsonType.STRING), nodes = mutableMapOf(
+                  "c" to mutableListOf<Node>(SchemaNode(
+                      name = "c", count = 1, type = BsonType.STRING
+                  ))
+                )))
+            )
+        )), schema)
     }
 
     @Test
@@ -62,11 +89,40 @@ class SchemaAnalyzerTest {
             }
         }).map { it.toBsonDocument(BsonDocument::class.java, registry) }
 
-        println(documents.first().toJson(JsonWriterSettings(true)))
-
         // Create an analyser instance and analyze the documents
-        val schema = SchemaAnalyzer().process(documents)
-        println()
+        val schema = SchemaAnalyzer("db", "coll").process(documents)
+        assertEquals(Schema(db = "db", collection = "coll", node = SchemaNode(
+            type = BsonType.DOCUMENT,
+            count = 2,
+            types = mutableSetOf(BsonType.INT32, BsonType.ARRAY),
+            nodes = mutableMapOf(
+                "a" to mutableListOf<Node>(
+                    SchemaNode("a", count = 1, type = BsonType.INT32)
+                ),
+                "b" to mutableListOf<Node>(
+                    SchemaArray(
+                        name = "b",
+                        count = 2,
+                        types = mutableSetOf(BsonType.STRING, BsonType.DOCUMENT),
+                        nodes = mutableListOf(
+                            SchemaNode(name = null, type = BsonType.STRING, count = 1),
+                            SchemaNode(
+                                name = null,
+                                type = BsonType.DOCUMENT,
+                                types = mutableSetOf(BsonType.INT32),
+                                count = 3,
+                                nodes = mutableMapOf(
+                                    "c" to mutableListOf<Node>(SchemaNode(
+                                        name = "c",
+                                        count = 1,
+                                        type = BsonType.INT32))
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        )), schema)
     }
 
     @Test
@@ -97,11 +153,9 @@ class SchemaAnalyzerTest {
             }
         }).map { it.toBsonDocument(BsonDocument::class.java, registry) }
 
-//        println(documents.first().toJson(JsonWriterSettings(true)))
-
         // Create an analyser instance and analyze the documents
-        val schema = SchemaAnalyzer().process(documents)
-        assertEquals(Schema(node = SchemaNode(
+        val schema = SchemaAnalyzer("db", "coll").process(documents)
+        assertEquals(Schema(db = "db", collection = "coll", node = SchemaNode(
             type = BsonType.DOCUMENT,
             count = 2,
             types = mutableSetOf(BsonType.ARRAY),
@@ -185,14 +239,12 @@ class SchemaAnalyzerTest {
             }
         }).map { it.toBsonDocument(BsonDocument::class.java, registry) }
 
-//        println(documents.first().toJson(JsonWriterSettings(true)))
-
         // Options
         val options = SchemaAnalyzerOptions(true)
 
         // Create an analyser instance and analyze the documents
-        val schema = SchemaAnalyzer(options).process(documents)
-        assertEquals(Schema(options = options, node = SchemaNode(
+        val schema = SchemaAnalyzer("db", "coll", options).process(documents)
+        assertEquals(Schema(db = "db", collection = "coll", options = options, node = SchemaNode(
             type = BsonType.DOCUMENT,
             count = 2,
             types = mutableSetOf(BsonType.ARRAY),
