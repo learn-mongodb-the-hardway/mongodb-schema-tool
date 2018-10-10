@@ -9,7 +9,7 @@ import org.bson.BsonDocument
 import org.bson.BsonString
 import org.bson.BsonType
 
-class GeneratorOptions
+class GeneratorOptions(val useJsonTypesWherePossible: Boolean = false)
 
 class Generator(val options: GeneratorOptions = GeneratorOptions()) {
     fun generate(schema: Schema): BsonDocument {
@@ -45,10 +45,23 @@ class Generator(val options: GeneratorOptions = GeneratorOptions()) {
 
         // Process all single nodes
         node.nodes.filter { it.value.size == 1 }.map { it.key to it.value.first() }.forEach { pair ->
-            when (pair.second) {
+            val singleNode = pair.second
+
+            when (singleNode) {
                 is SchemaNode -> {
-                    properties.append(pair.first, BsonDocument()
-                            .append("\$type", mapTypeToJsonSchema(pair.second.type)))
+                    // If it's not a document or array use the $type extension for MongoDB
+                    if (singleNode.type !in listOf(BsonType.DOCUMENT, BsonType.ARRAY)) {
+                        properties.append(pair.first, mapTypeToJsonSchema(singleNode.type, options))
+                    } else {
+                        val doc = mapTypeToJsonSchema(singleNode.type, options)
+                        properties.append(pair.first, doc)
+
+                        if (singleNode is SchemaNode) {
+                            processSchemaNode(schema, doc, singleNode)
+                        } else if (singleNode is SchemaArray) {
+                            processSchemaArray(schema, doc, singleNode)
+                        }
+                    }
 
                     // Is the times this node was seen the same as the total
                     // number of processed documents in this schema, make the field required
@@ -58,6 +71,27 @@ class Generator(val options: GeneratorOptions = GeneratorOptions()) {
                 }
                 else -> throw Exception("Type ${pair.second.javaClass.name} not supported")
             }
+        }
+
+        // Process all the mixed type nodes
+        node.nodes.filter { it.value.size > 1 }.forEach { key, list ->
+
+            val documents = list.map { singleNode ->
+                var doc = BsonDocument()
+
+                if (singleNode.type == BsonType.DOCUMENT && singleNode is SchemaNode) {
+                    processSchemaNode(schema, doc, singleNode)
+                } else if (singleNode.type == BsonType.ARRAY && singleNode is SchemaArray) {
+                    processSchemaArray(schema, doc, singleNode)
+                } else {
+                    doc = mapTypeToJsonSchema(singleNode.type, options)
+                }
+
+                doc
+            }
+
+            properties.append(key, BsonDocument()
+                .append("oneOf", BsonArray(documents)))
         }
 
         // Add required field if needed
@@ -105,31 +139,58 @@ class Generator(val options: GeneratorOptions = GeneratorOptions()) {
 //        }
     }
 
-    private fun mapTypeToJsonSchema(type: BsonType): BsonString {
-        return BsonString(when (type) {
-            BsonType.STRING -> "string"
-            BsonType.INT32 -> "int"
-            BsonType.UNDEFINED -> "undefined"
-            BsonType.MIN_KEY -> "minKey"
-            BsonType.MAX_KEY -> "maxKey"
-            BsonType.REGULAR_EXPRESSION -> "regex"
-            BsonType.TIMESTAMP -> "timestamp"
-            BsonType.DATE_TIME -> "date"
-            BsonType.DECIMAL128 -> "decimal"
-            BsonType.OBJECT_ID -> "objectId"
-            BsonType.SYMBOL -> "symbol"
-            BsonType.DOUBLE -> "double"
-            BsonType.BOOLEAN -> "bool"
-            BsonType.JAVASCRIPT_WITH_SCOPE -> "javascriptWithScope"
-            BsonType.DOCUMENT -> "document"
-            BsonType.ARRAY -> "array"
-            BsonType.JAVASCRIPT -> "javascript"
-            BsonType.INT64 -> "long"
-            BsonType.BINARY -> "binary"
-            BsonType.DB_POINTER -> "dbPointer"
-            BsonType.NULL -> "null"
-            else -> throw Exception("type $type not supported")
-        })
+    private fun mapTypeToJsonSchema(type: BsonType, options: GeneratorOptions): BsonDocument {
+        if (options.useJsonTypesWherePossible) {
+            return when (type) {
+                BsonType.STRING -> BsonDocument().append("type", BsonString("string"))
+                BsonType.INT32 -> BsonDocument().append("type", BsonString("integer"))
+                BsonType.DOUBLE -> BsonDocument().append("type", BsonString("number"))
+                BsonType.NULL -> BsonDocument().append("type", BsonString("null"))
+                BsonType.BOOLEAN -> BsonDocument().append("type", BsonString("boolean"))
+                BsonType.DOCUMENT -> BsonDocument().append("type", BsonString("object"))
+                BsonType.ARRAY -> BsonDocument().append("type", BsonString("array"))
+                BsonType.UNDEFINED -> BsonDocument().append("\$type", BsonString("undefined"))
+                BsonType.MIN_KEY -> BsonDocument().append("\$type", BsonString("minKey"))
+                BsonType.MAX_KEY -> BsonDocument().append("\$type", BsonString("maxKey"))
+                BsonType.REGULAR_EXPRESSION -> BsonDocument().append("\$type", BsonString("regex"))
+                BsonType.TIMESTAMP -> BsonDocument().append("\$type", BsonString("timestamp"))
+                BsonType.DATE_TIME -> BsonDocument().append("\$type", BsonString("date"))
+                BsonType.DECIMAL128 -> BsonDocument().append("\$type", BsonString("decimal"))
+                BsonType.OBJECT_ID -> BsonDocument().append("\$type", BsonString("objectId"))
+                BsonType.SYMBOL -> BsonDocument().append("\$type", BsonString("symbol"))
+                BsonType.JAVASCRIPT_WITH_SCOPE -> BsonDocument().append("\$type", BsonString("javascriptWithScope"))
+                BsonType.JAVASCRIPT -> BsonDocument().append("\$type", BsonString("javascript"))
+                BsonType.INT64 -> BsonDocument().append("\$type", BsonString("long"))
+                BsonType.BINARY -> BsonDocument().append("\$type", BsonString("binary"))
+                BsonType.DB_POINTER -> BsonDocument().append("\$type", BsonString("dbPointer"))
+                else -> throw Exception("type $type not supported")
+            }
+        } else {
+            return when (type) {
+                BsonType.DOCUMENT -> BsonDocument().append("type", BsonString("object"))
+                BsonType.ARRAY -> BsonDocument().append("type", BsonString("array"))
+                BsonType.STRING -> BsonDocument().append("\$type", BsonString("string"))
+                BsonType.INT32 -> BsonDocument().append("\$type", BsonString("int"))
+                BsonType.UNDEFINED -> BsonDocument().append("\$type", BsonString("undefined"))
+                BsonType.MIN_KEY -> BsonDocument().append("\$type", BsonString("minKey"))
+                BsonType.MAX_KEY -> BsonDocument().append("\$type", BsonString("maxKey"))
+                BsonType.REGULAR_EXPRESSION -> BsonDocument().append("\$type", BsonString("regex"))
+                BsonType.TIMESTAMP -> BsonDocument().append("\$type", BsonString("timestamp"))
+                BsonType.DATE_TIME -> BsonDocument().append("\$type", BsonString("date"))
+                BsonType.DECIMAL128 -> BsonDocument().append("\$type", BsonString("decimal"))
+                BsonType.OBJECT_ID -> BsonDocument().append("\$type", BsonString("objectId"))
+                BsonType.SYMBOL -> BsonDocument().append("\$type", BsonString("symbol"))
+                BsonType.DOUBLE -> BsonDocument().append("\$type", BsonString("double"))
+                BsonType.BOOLEAN -> BsonDocument().append("\$type", BsonString("bool"))
+                BsonType.JAVASCRIPT_WITH_SCOPE -> BsonDocument().append("\$type", BsonString("javascriptWithScope"))
+                BsonType.JAVASCRIPT -> BsonDocument().append("\$type", BsonString("javascript"))
+                BsonType.INT64 -> BsonDocument().append("\$type", BsonString("long"))
+                BsonType.BINARY -> BsonDocument().append("\$type", BsonString("binary"))
+                BsonType.DB_POINTER -> BsonDocument().append("\$type", BsonString("dbPointer"))
+                BsonType.NULL -> BsonDocument().append("\$type", BsonString("null"))
+                else -> throw Exception("type $type not supported")
+            }
+        }
     }
 }
 

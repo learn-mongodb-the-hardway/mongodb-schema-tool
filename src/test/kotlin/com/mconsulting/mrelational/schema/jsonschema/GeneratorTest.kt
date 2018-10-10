@@ -50,9 +50,112 @@ class GeneratorTest {
               }
             }
         """.trimIndent())
-//        println(jsonSchema.toJson(JsonWriterSettings(true)))
+        println(jsonSchema.toJson(JsonWriterSettings(true)))
 //        println(expectedSchema.toJson(JsonWriterSettings(true)))
         assertEquals(expectedSchema, jsonSchema)
+    }
+
+    @Test
+    fun generateSimpleNestedJsonSchema() {
+        // Create a document, analyze it and then generate
+        // the json schema from it.
+        val documents = listOf(
+            document {
+                field("a", 100)
+                field("b", "string")
+
+                documentOf("c") {
+                    field("d", 10.10)
+                    field("e", "hello")
+                }
+            }.toBsonDocument(BsonDocument::class.java, registry)
+        )
+
+        // Create the analyzer
+        val analyzer = SchemaAnalyzer("db", "coll")
+        // Get the schema
+        val schema = analyzer.process(documents)
+        // Generate the json schema
+        val jsonSchema = Generator().generate(schema)
+        // Expected
+        val expectedSchema = BsonDocument.parse("""
+            {
+              "${'$'}schema" : "http://json-schema.org/draft-04/schema#",
+              "description" : "db.coll MongoDB Schema",
+              "type" : "object",
+              "required" : ["a", "b", "c"],
+              "properties" : {
+                "a" : {
+                  "${'$'}type" : "int"
+                },
+                "b" : {
+                  "${'$'}type" : "string"
+                },
+                "c" : {
+                  "type" : "object",
+                  "required" : ["d", "e"],
+                  "properties" : {
+                    "d" : {
+                      "${'$'}type" : "double"
+                    },
+                    "e" : {
+                      "${'$'}type" : "string"
+                    }
+                  }
+                }
+              }
+            }
+        """.trimIndent())
+        println(jsonSchema.toJson(JsonWriterSettings(true)))
+//        println(expectedSchema.toJson(JsonWriterSettings(true)))
+        assertEquals(expectedSchema, jsonSchema)
+    }
+
+    @Test
+    fun mixedGenerateSimpleJsonSchema() {
+        // Create a document, analyze it and then generate
+        // the json schema from it.
+        val documents = listOf(
+            document {
+                field("a", 100)
+                field("b", "string")
+            }.toBsonDocument(BsonDocument::class.java, registry),
+            document {
+                field("a", "world")
+                field("b", "string")
+            }.toBsonDocument(BsonDocument::class.java, registry)
+        )
+
+        // Create the analyzer
+        val analyzer = SchemaAnalyzer("db", "coll")
+        // Get the schema
+        val schema = analyzer.process(documents)
+        // Generate the json schema
+        val jsonSchema = Generator(GeneratorOptions(true)).generate(schema)
+        // Expected
+        val expectedSchema = BsonDocument.parse("""
+            {
+              "$schema" : "http://json-schema.org/draft-04/schema#",
+              "description" : "db.coll MongoDB Schema",
+              "type" : "object",
+              "required" : ["b"],
+              "properties" : {
+                "b" : {
+                  "type" : "string"
+                },
+                "a" : {
+                  "oneOf" : [{
+                      "type" : "integer"
+                    }, {
+                      "type" : "string"
+                    }]
+                }
+              }
+            }
+        """.trimIndent())
+        println(jsonSchema.toJson(JsonWriterSettings(true)))
+//        println(expectedSchema.toJson(JsonWriterSettings(true)))
+//        assertEquals(expectedSchema, jsonSchema)
     }
 
     companion object {
