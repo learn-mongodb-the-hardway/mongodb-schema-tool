@@ -13,12 +13,10 @@ class GeneratorOptions(val useJsonTypesWherePossible: Boolean = false)
 
 class Generator(val options: GeneratorOptions = GeneratorOptions()) {
     fun generate(schema: Schema): BsonDocument {
-//        val subDocument = BsonDocument()
         val document = BsonDocument()
             .append("\$schema", BsonString("http://json-schema.org/draft-04/schema#"))
             .append("description", BsonString("${schema.db}.${schema.collection} MongoDB Schema"))
             .append("type", BsonString("object"))
-//            .append("properties", subDocument)
 
         process(schema, document, schema.node)
 
@@ -33,7 +31,57 @@ class Generator(val options: GeneratorOptions = GeneratorOptions()) {
     }
 
     private fun processSchemaArray(schema: Schema, document: BsonDocument, node: SchemaArray) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        println()
+
+        if (node.nodes.size > 1) {
+            // Generate the schema documents
+            val documents = node.nodes.map {
+                when (it) {
+                    is SchemaNode -> {
+                        if (it.type == BsonType.DOCUMENT) {
+                            val doc = mapTypeToJsonSchema(it.type, options)
+                            processSchemaNode(schema, doc, it)
+                            doc
+                        } else {
+                            mapTypeToJsonSchema(it.type, options)
+                        }
+                    }
+                    is SchemaArray -> {
+                        val doc = mapTypeToJsonSchema(it.type, options)
+                        processSchemaArray(schema, doc, it)
+                        doc
+                    }
+                    else -> throw Exception("Type ${it.javaClass.name} not supported")
+                }
+            }
+
+            // Create the anyOf element
+            val subDocument = BsonDocument()
+                .append("anyOf", BsonArray(documents))
+
+            // Add ot the list of items
+            document.append("items", subDocument)
+        } else {
+            val cnode = node.nodes.first()
+
+            when (cnode) {
+                is SchemaNode -> {
+                    if (cnode.type == BsonType.DOCUMENT) {
+                        val doc = mapTypeToJsonSchema(cnode.type, options)
+                        processSchemaNode(schema, doc, cnode)
+                        doc
+                    } else {
+                        document.append("items", mapTypeToJsonSchema(cnode.type, options))
+                    }
+                }
+                is SchemaArray -> {
+                    val doc = mapTypeToJsonSchema(cnode.type, options)
+                    processSchemaArray(schema, doc, cnode)
+                    doc
+                }
+                else -> throw Exception("Type ${cnode.javaClass.name} not supported")
+            }
+        }
     }
 
     private fun processSchemaNode(schema: Schema, document: BsonDocument, node: SchemaNode) {
@@ -50,31 +98,33 @@ class Generator(val options: GeneratorOptions = GeneratorOptions()) {
             when (singleNode) {
                 is SchemaNode -> {
                     // If it's not a document or array use the $type extension for MongoDB
-                    if (singleNode.type !in listOf(BsonType.DOCUMENT, BsonType.ARRAY)) {
+                    if (singleNode.type != BsonType.DOCUMENT) {
                         properties.append(pair.first, mapTypeToJsonSchema(singleNode.type, options))
                     } else {
                         val doc = mapTypeToJsonSchema(singleNode.type, options)
                         properties.append(pair.first, doc)
-
-                        if (singleNode is SchemaNode) {
-                            processSchemaNode(schema, doc, singleNode)
-                        } else if (singleNode is SchemaArray) {
-                            processSchemaArray(schema, doc, singleNode)
-                        }
-                    }
-
-                    // Is the times this node was seen the same as the total
-                    // number of processed documents in this schema, make the field required
-                    if (pair.second.count == schema.node.count) {
-                        requiredFields += BsonString(pair.first)
+                        processSchemaNode(schema, doc, singleNode)
                     }
                 }
+                is SchemaArray -> {
+                    val doc = mapTypeToJsonSchema(singleNode.type, options)
+                    properties.append(pair.first, doc)
+                    processSchemaArray(schema, doc, singleNode)
+                }
                 else -> throw Exception("Type ${pair.second.javaClass.name} not supported")
+            }
+
+            // Is the times this node was seen the same as the total
+            // number of processed documents in this schema, make the field required
+            if (pair.second.count == schema.node.count) {
+                requiredFields += BsonString(pair.first)
             }
         }
 
         // Process all the mixed type nodes
         node.nodes.filter { it.value.size > 1 }.forEach { key, list ->
+            // Add up the counts of each shape seen
+            val count = list.map { it.count }.sum()
 
             val documents = list.map { singleNode ->
                 var doc = BsonDocument()
@@ -92,6 +142,11 @@ class Generator(val options: GeneratorOptions = GeneratorOptions()) {
 
             properties.append(key, BsonDocument()
                 .append("oneOf", BsonArray(documents)))
+
+            // Is this a required field
+            if (count == schema.node.count) {
+                requiredFields += BsonString(key)
+            }
         }
 
         // Add required field if needed
@@ -101,42 +156,6 @@ class Generator(val options: GeneratorOptions = GeneratorOptions()) {
 
         // Add the properties
         document.append("properties", properties)
-
-//        node.nodes.forEach { key, list ->
-//            if (list.size == 1) {
-//                val cnode = list.first()
-//
-//                when (cnode) {
-//                    is SchemaNode -> {
-//                        document.append(cnode.name, BsonDocument()
-//                            .append("\$type", mapTypeToJsonSchema(cnode.type))
-//                        )
-//                    }
-//                    is SchemaArray -> {
-//                        val doc = BsonDocument()
-//                        processSchemaArray(schema, doc, cnode)
-//                        doc
-//                    }
-//                    else -> throw Exception("Type ${cnode.javaClass.name} not supported")
-//                }
-//            } else {
-//                list.map {
-//                    when (it) {
-//                        is SchemaNode -> {
-//                            document.append(it.name, BsonDocument()
-//                                .append("\$type", mapTypeToJsonSchema(it.type))
-//                            )
-//                        }
-//                        is SchemaArray -> {
-//                            val doc = BsonDocument()
-//                            processSchemaArray(schema, doc, it)
-//                            doc
-//                        }
-//                        else -> throw Exception("Type ${it.javaClass.name} not supported")
-//                    }
-//                }
-//            }
-//        }
     }
 
     private fun mapTypeToJsonSchema(type: BsonType, options: GeneratorOptions): BsonDocument {
@@ -193,13 +212,3 @@ class Generator(val options: GeneratorOptions = GeneratorOptions()) {
         }
     }
 }
-
-//class SchemaGeneratorVisitor(schema: Schema) : SchemaVisitor {
-//    override fun visit(node: SchemaNode) {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-//    }
-//
-//    override fun visit(array: SchemaArray) {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-//    }
-//}

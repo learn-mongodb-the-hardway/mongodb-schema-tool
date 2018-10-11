@@ -21,7 +21,7 @@ interface Field {
 
 class DocumentTemplate(override val name: String? = null, val fields: MutableList<Field> = mutableListOf()) : Field
 
-class DocumentArray(override val name: String, val fields: MutableList<Field> = mutableListOf()): Field
+class DocumentArray(override val name: String? = null, val fields: MutableList<Field> = mutableListOf()): Field
 
 class Value(val value: Any?, override val name: String? = null) : Field
 
@@ -51,7 +51,7 @@ sealed class FieldCollectionHelper<T> : Helper<T>() {
         }
     }
 
-    fun arrayOf(name: String, vararg entries: Any, init: ArrayHelper.() -> Unit = {}) {
+    fun arrayOf(name: String? = null, vararg entries: Any, init: ArrayHelper.() -> Unit = {}) {
         val b = ArrayHelper(name, entries)
         b.init()
         fields += b.build()
@@ -85,7 +85,7 @@ private fun mapDocument(fields: MutableList<Field>): Map<String, Any?> {
             }
 
             is DocumentArray -> {
-                map[field.name] = mapArray(field.fields)
+                map[field.name!!] = mapArray(field.fields)
             }
 
             is DocumentTemplate -> {
@@ -109,7 +109,7 @@ private fun mapArray(fields: MutableList<Field>): MutableList<Any> {
     }.filterNotNull().toMutableList()
 }
 
-class ArrayHelper(val name: String, entries: Array<out Any>): FieldCollectionHelper<DocumentArray>() {
+class ArrayHelper(val name: String?, entries: Array<out Any>): FieldCollectionHelper<DocumentArray>() {
 
     init {
         entries.forEach {

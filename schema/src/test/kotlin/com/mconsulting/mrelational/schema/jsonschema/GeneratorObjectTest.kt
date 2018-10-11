@@ -3,6 +3,7 @@ package com.mconsulting.mrelational.schema.jsonschema
 import com.mconsulting.mrelational.document
 import com.mconsulting.mrelational.registry
 import com.mconsulting.mrelational.schema.SchemaAnalyzer
+import com.mconsulting.mrelational.schema.SchemaAnalyzerOptions
 import com.mongodb.MongoClient
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.MongoDatabase
@@ -14,7 +15,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
-class GeneratorTest {
+class GeneratorObjectTest {
 
     @Test
     fun generateSimpleJsonSchema() {
@@ -50,7 +51,7 @@ class GeneratorTest {
               }
             }
         """.trimIndent())
-        println(jsonSchema.toJson(JsonWriterSettings(true)))
+//        println(jsonSchema.toJson(JsonWriterSettings(true)))
 //        println(expectedSchema.toJson(JsonWriterSettings(true)))
         assertEquals(expectedSchema, jsonSchema)
     }
@@ -106,7 +107,7 @@ class GeneratorTest {
               }
             }
         """.trimIndent())
-        println(jsonSchema.toJson(JsonWriterSettings(true)))
+//        println(jsonSchema.toJson(JsonWriterSettings(true)))
 //        println(expectedSchema.toJson(JsonWriterSettings(true)))
         assertEquals(expectedSchema, jsonSchema)
     }
@@ -135,10 +136,10 @@ class GeneratorTest {
         // Expected
         val expectedSchema = BsonDocument.parse("""
             {
-              "$schema" : "http://json-schema.org/draft-04/schema#",
+              "${'$'}schema" : "http://json-schema.org/draft-04/schema#",
               "description" : "db.coll MongoDB Schema",
               "type" : "object",
-              "required" : ["b"],
+              "required" : ["b", "a"],
               "properties" : {
                 "b" : {
                   "type" : "string"
@@ -153,9 +154,83 @@ class GeneratorTest {
               }
             }
         """.trimIndent())
-        println(jsonSchema.toJson(JsonWriterSettings(true)))
+//        println(jsonSchema.toJson(JsonWriterSettings(true)))
 //        println(expectedSchema.toJson(JsonWriterSettings(true)))
-//        assertEquals(expectedSchema, jsonSchema)
+        assertEquals(expectedSchema, jsonSchema)
+    }
+
+    @Test
+    fun mixedGenerateSimpleNestedJsonSchema() {
+        // Create a document, analyze it and then generate
+        // the json schema from it.
+        val documents = listOf(
+            document {
+                field("a", 100)
+                field("b", "string")
+
+                documentOf("c") {
+                    field("d", 10.10)
+                    field("e", "hello")
+                }
+            }.toBsonDocument(BsonDocument::class.java, registry),
+            document {
+                field("a", 100)
+                field("b", "string")
+
+                documentOf("c") {
+                    field("d", "world")
+                    field("e", "hello")
+                }
+            }.toBsonDocument(BsonDocument::class.java, registry)
+        )
+
+        // Create the analyzer
+        val analyzer = SchemaAnalyzer("db", "coll")
+        // Get the schema
+        val schema = analyzer.process(documents)
+        // Generate the json schema
+        val jsonSchema = Generator(GeneratorOptions(true)).generate(schema)
+        // Expected
+        val expectedSchema = BsonDocument.parse("""
+            {
+              "${'$'}schema" : "http://json-schema.org/draft-04/schema#",
+              "description" : "db.coll MongoDB Schema",
+              "type" : "object",
+              "required" : ["a", "b", "c"],
+              "properties" : {
+                "a" : {
+                  "type" : "integer"
+                },
+                "b" : {
+                  "type" : "string"
+                },
+                "c" : {
+                  "oneOf" : [{
+                      "properties" : {
+                        "d" : {
+                          "type" : "number"
+                        },
+                        "e" : {
+                          "type" : "string"
+                        }
+                      }
+                    }, {
+                      "properties" : {
+                        "d" : {
+                          "type" : "string"
+                        },
+                        "e" : {
+                          "type" : "string"
+                        }
+                      }
+                    }]
+                }
+              }
+            }
+        """.trimIndent())
+//        println(jsonSchema.toJson(JsonWriterSettings(true)))
+//        println(expectedSchema.toJson(JsonWriterSettings(true)))
+        assertEquals(expectedSchema, jsonSchema)
     }
 
     companion object {
