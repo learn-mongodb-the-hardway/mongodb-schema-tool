@@ -1,5 +1,8 @@
 package com.mconsulting.mrelational.schema
 
+import com.mconsulting.mrelational.schema.extractor.OutputFormat
+import com.mconsulting.mrelational.schema.json.Draft4Generator
+import com.mconsulting.mrelational.schema.json.SchemaGenerator
 import org.bson.BsonArray
 import org.bson.BsonDocument
 import org.bson.BsonType
@@ -26,6 +29,17 @@ class Schema(
             && collection == other.collection
             && options == other.options
             && node == other.node
+    }
+
+    fun toJson(outputFormat: OutputFormat = OutputFormat.JSON_SCHEMA_V4): String {
+        return when (outputFormat) {
+            OutputFormat.JSON_SCHEMA_V4 -> {
+                Draft4Generator().generate(this).toJson()
+            }
+            OutputFormat.SCHEMA -> {
+                SchemaGenerator().generate(this).toJson()
+            }
+        }
     }
 }
 
@@ -290,7 +304,7 @@ class SchemaAnalyzer(
     val db: String,
     val collection: String,
     options: SchemaAnalyzerOptions = SchemaAnalyzerOptions()) {
-    private val schema = Schema(db, collection, options)
+    val schema = Schema(db, collection, options)
     private val path = mutableListOf(schema.node)
 
     fun process(document: BsonDocument) : Schema {

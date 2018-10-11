@@ -1,4 +1,4 @@
-package com.mconsulting.mrelational.schema.jsonschema
+package com.mconsulting.mrelational.schema.json
 
 import com.mconsulting.mrelational.schema.Node
 import com.mconsulting.mrelational.schema.Schema
@@ -9,10 +9,10 @@ import org.bson.BsonDocument
 import org.bson.BsonString
 import org.bson.BsonType
 
-class GeneratorOptions(val useJsonTypesWherePossible: Boolean = false)
+class Draft4GeneratorOptions(val useJsonTypesWherePossible: Boolean = false)
 
-class Generator(val options: GeneratorOptions = GeneratorOptions()) {
-    fun generate(schema: Schema): BsonDocument {
+class Draft4Generator(val options: Draft4GeneratorOptions = Draft4GeneratorOptions()) : JsonGenerator {
+    override fun generate(schema: Schema): BsonDocument {
         val document = BsonDocument()
             .append("\$schema", BsonString("http://json-schema.org/draft-04/schema#"))
             .append("description", BsonString("${schema.db}.${schema.collection} MongoDB Schema"))
@@ -158,7 +158,7 @@ class Generator(val options: GeneratorOptions = GeneratorOptions()) {
         document.append("properties", properties)
     }
 
-    private fun mapTypeToJsonSchema(type: BsonType, options: GeneratorOptions): BsonDocument {
+    private fun mapTypeToJsonSchema(type: BsonType, options: Draft4GeneratorOptions): BsonDocument {
         if (options.useJsonTypesWherePossible) {
             return when (type) {
                 BsonType.STRING -> BsonDocument().append("type", BsonString("string"))

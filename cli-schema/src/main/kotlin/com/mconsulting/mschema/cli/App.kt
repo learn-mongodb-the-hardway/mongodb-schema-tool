@@ -11,6 +11,8 @@ import ch.qos.logback.core.ConsoleAppender
 import ch.qos.logback.core.FileAppender
 import ch.qos.logback.core.encoder.Encoder
 import ch.qos.logback.core.spi.FilterReply
+import com.mconsulting.mrelational.schema.extractor.SchemaExtractorExecutor
+import com.mconsulting.mrelational.schema.extractor.SchemaExtractorOptions
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.HelpFormatter
 import com.xenomachina.argparser.ShowHelpException
@@ -52,21 +54,13 @@ object App : KLogging() {
         // Attempt to validate the options
         config.validate()
 
-//        // The input stream
-//        val stream = BufferedInputStream(File(config.general.config!!).inputStream())
-//
-//        if (config.general.worker) {
-//            WorkerExecutor(WorkerExecutorConfig(
-//                URI("http://${config.general.masterURI}"),
-//                URI("http://${config.general.host}:${config.general.port}")
-//            ))
-//        } else {
-//            MasterExecutor(MasterExecutorConfig(
-//                config.general.master,
-//                URI("http://${config.general.host}:${config.general.port}"),
-//                InputStreamReader(stream).readText()
-//            ))
-//        }
+        // Create SchemaExtractorExecutor
+        SchemaExtractorExecutor(SchemaExtractorOptions(
+            uri = config.schema.uri,
+            namespaces = config.schema.namespaces,
+            outputDirectory = config.schema.outputDirectory,
+            outputFormat = config.schema.outputFormat
+        )).execute()
     }
 
     private fun execute(body: () -> Unit) {

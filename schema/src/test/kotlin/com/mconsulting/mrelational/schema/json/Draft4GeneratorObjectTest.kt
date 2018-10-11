@@ -1,21 +1,19 @@
-package com.mconsulting.mrelational.schema.jsonschema
+package com.mconsulting.mrelational.schema.json
 
 import com.mconsulting.mrelational.document
 import com.mconsulting.mrelational.registry
 import com.mconsulting.mrelational.schema.SchemaAnalyzer
-import com.mconsulting.mrelational.schema.SchemaAnalyzerOptions
 import com.mongodb.MongoClient
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.MongoDatabase
 import org.bson.BsonDocument
 import org.bson.Document
-import org.bson.json.JsonWriterSettings
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
-class GeneratorObjectTest {
+class Draft4GeneratorObjectTest {
 
     @Test
     fun generateSimpleJsonSchema() {
@@ -33,7 +31,7 @@ class GeneratorObjectTest {
         // Get the schema
         val schema = analyzer.process(documents)
         // Generate the json schema
-        val jsonSchema = Generator().generate(schema)
+        val jsonSchema = Draft4Generator().generate(schema)
         // Expected
         val expectedSchema = BsonDocument.parse("""
             {
@@ -77,7 +75,7 @@ class GeneratorObjectTest {
         // Get the schema
         val schema = analyzer.process(documents)
         // Generate the json schema
-        val jsonSchema = Generator().generate(schema)
+        val jsonSchema = Draft4Generator().generate(schema)
         // Expected
         val expectedSchema = BsonDocument.parse("""
             {
@@ -132,7 +130,7 @@ class GeneratorObjectTest {
         // Get the schema
         val schema = analyzer.process(documents)
         // Generate the json schema
-        val jsonSchema = Generator(GeneratorOptions(true)).generate(schema)
+        val jsonSchema = Draft4Generator(Draft4GeneratorOptions(true)).generate(schema)
         // Expected
         val expectedSchema = BsonDocument.parse("""
             {
@@ -189,7 +187,7 @@ class GeneratorObjectTest {
         // Get the schema
         val schema = analyzer.process(documents)
         // Generate the json schema
-        val jsonSchema = Generator(GeneratorOptions(true)).generate(schema)
+        val jsonSchema = Draft4Generator(Draft4GeneratorOptions(true)).generate(schema)
         // Expected
         val expectedSchema = BsonDocument.parse("""
             {
