@@ -59,7 +59,8 @@ object App : KLogging() {
             uri = config.schema.uri,
             namespaces = config.schema.namespaces,
             outputDirectory = config.schema.outputDirectory,
-            outputFormat = config.schema.outputFormat
+            outputFormat = config.schema.outputFormat,
+            mergeDocuments = config.schema.mergeDocuments
         )).execute()
     }
 

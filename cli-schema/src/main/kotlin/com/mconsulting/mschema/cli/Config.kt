@@ -55,6 +55,9 @@ class SchemaConfig(parser: ArgParser) {
         }
     }
 
+    val mergeDocuments by parser.flagging("--mergeDocuments", help = """"Schema: Merge any document schemas into a single document schema""")
+        .default(false)
+
     val outputFormat by parser.storing("--format", help = """Schema: Output format for schema extractor, one of ["schema", "json-schema-v4"], ex: [--output schema]""") {
         when (this.toLowerCase()) {
             "schema" -> OutputFormat.SCHEMA

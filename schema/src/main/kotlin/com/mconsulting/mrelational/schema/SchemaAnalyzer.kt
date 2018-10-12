@@ -2,15 +2,18 @@ package com.mconsulting.mrelational.schema
 
 import com.mconsulting.mrelational.schema.extractor.OutputFormat
 import com.mconsulting.mrelational.schema.json.Draft4Generator
+import com.mconsulting.mrelational.schema.json.Draft4GeneratorOptions
 import com.mconsulting.mrelational.schema.json.SchemaGenerator
 import org.bson.BsonArray
 import org.bson.BsonDocument
 import org.bson.BsonType
 import org.bson.BsonValue
+import org.bson.json.JsonWriterSettings
 
 interface Node {
     val type: BsonType
     var count: Long
+    val types: MutableSet<BsonType>
 
     fun merge(node: Node)
     fun inc(size: Long)
@@ -32,12 +35,16 @@ class Schema(
     }
 
     fun toJson(outputFormat: OutputFormat = OutputFormat.JSON_SCHEMA_V4): String {
+        val settings = JsonWriterSettings.builder().indent(true).build()
+
         return when (outputFormat) {
             OutputFormat.JSON_SCHEMA_V4 -> {
-                Draft4Generator().generate(this).toJson()
+                Draft4Generator(Draft4GeneratorOptions(
+                    useJsonTypesWherePossible = true
+                )).generate(this).toJson(settings)
             }
             OutputFormat.SCHEMA -> {
-                SchemaGenerator().generate(this).toJson()
+                SchemaGenerator().generate(this).toJson(settings)
             }
         }
     }
@@ -47,7 +54,7 @@ class SchemaArray(
     val name: String? = null,
     val options: SchemaAnalyzerOptions = SchemaAnalyzerOptions(),
     val nodes: MutableList<Node> = mutableListOf(),
-    val types: MutableSet<BsonType> = mutableSetOf(),
+    override val types: MutableSet<BsonType> = mutableSetOf(),
     override var count: Long = 1
 ): Node {
     override fun inc(size: Long) {
@@ -171,7 +178,7 @@ class SchemaNode(
     override val type: BsonType,
     val options: SchemaAnalyzerOptions = SchemaAnalyzerOptions(),
     val nodes: MutableMap<String, MutableList<Node>> = mutableMapOf(),
-    val types: MutableSet<BsonType> = mutableSetOf(),
+    override val types: MutableSet<BsonType> = mutableSetOf(),
     override var count: Long = 1
 ): Node {
     override fun inc(size: Long) {

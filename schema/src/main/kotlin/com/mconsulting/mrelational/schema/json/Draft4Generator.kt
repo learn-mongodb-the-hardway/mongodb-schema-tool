@@ -31,8 +31,6 @@ class Draft4Generator(val options: Draft4GeneratorOptions = Draft4GeneratorOptio
     }
 
     private fun processSchemaArray(schema: Schema, document: BsonDocument, node: SchemaArray) {
-        println()
-
         if (node.nodes.size > 1) {
             // Generate the schema documents
             val documents = node.nodes.map {

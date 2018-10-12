@@ -21,7 +21,8 @@ data class SchemaExtractorOptions(
     val uri: MongoClientURI,
     val namespaces: List<Namespace>,
     val outputDirectory: File,
-    val outputFormat: OutputFormat
+    val outputFormat: OutputFormat,
+    val mergeDocuments: Boolean
 )
 
 class SchemaExtractorExecutor(val options: SchemaExtractorOptions) {

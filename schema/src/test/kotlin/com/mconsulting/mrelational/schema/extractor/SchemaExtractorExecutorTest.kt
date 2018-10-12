@@ -22,14 +22,15 @@ class SchemaExtractorExecutorTest {
             namespaces = listOf(
                 Namespace(db.name, extractor1.namespace.collectionName, 10),
                 Namespace(db.name, extractor2.namespace.collectionName, 10)
-            )
+            ),
+            mergeDocuments = false
         ))
 
         val schemas = executor.execute()
 
         // Print the json schema for each
         schemas.forEach {
-            println(it.toJson())
+//            println(it.toJson())
             println(it.toJson(OutputFormat.SCHEMA))
         }
 
@@ -61,6 +62,10 @@ class SchemaExtractorExecutorTest {
             extractor1.insertMany(listOf(
                 document {
                     field("a", 100)
+
+                    documentOf("b") {
+                        field("c", "hello world")
+                    }
                 }
             ))
 
@@ -69,6 +74,10 @@ class SchemaExtractorExecutorTest {
                 document {
                     arrayOf("a") {
                         value("hello")
+
+                        documentOf {
+                            field("a", 100)
+                        }
                     }
                 }
             ))
