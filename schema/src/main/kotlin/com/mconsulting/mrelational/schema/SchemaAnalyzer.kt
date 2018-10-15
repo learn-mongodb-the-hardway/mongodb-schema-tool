@@ -6,6 +6,7 @@ import com.mconsulting.mrelational.schema.json.Draft4GeneratorOptions
 import com.mconsulting.mrelational.schema.json.SchemaGenerator
 import org.bson.BsonArray
 import org.bson.BsonDocument
+import org.bson.BsonJavaScriptWithScope
 import org.bson.BsonType
 import org.bson.BsonValue
 import org.bson.json.JsonWriterSettings
@@ -106,6 +107,28 @@ class SchemaArray(
                 }
             }
 
+            is BsonJavaScriptWithScope -> {
+                val node = JavaScriptWithScopeNode(type = value.bsonType, options = options)
+
+                val tnode = nodes.firstOrNull { it == node }
+                // Does this specific node not exist
+                if (tnode == null) {
+                    if (value.code != null) {
+                        val scope = SchemaNode(type = BsonType.DOCUMENT, options = options)
+                        value.scope.forEach {
+                            scope.addField(it.key, it.value)
+                        }
+
+                        node.scope = scope
+                    }
+
+                    nodes.add(node)
+                    types += node.type
+                } else {
+                    tnode.inc(node.count)
+                }
+            }
+
             else -> {
                 val node = SchemaNode(type = value.bsonType, options = options)
                 // Add type
@@ -173,7 +196,33 @@ class SchemaArray(
     }
 }
 
-class SchemaNode(
+/**
+ * Special case due to javascript with scope being a hybrid value/document
+ */
+class JavaScriptWithScopeNode(
+    name: String? = null,
+    type: BsonType,
+    options: SchemaAnalyzerOptions = SchemaAnalyzerOptions(),
+    nodes: MutableMap<String, MutableList<Node>> = mutableMapOf(),
+    types: MutableSet<BsonType> = mutableSetOf(),
+    var scope: SchemaNode? = null,
+    count: Long = 1) : SchemaNode(name, type, options, nodes, types, count) {
+
+    override fun equals(other: Any?): Boolean {
+        if (other == null) return false
+        if (other !is JavaScriptWithScopeNode) return false
+        if (other.nodes.size != this.nodes.size) return false
+        if (other.types.intersect(this.types).size != this.types.size) return false
+        if (other.type != this.type) return false
+        if (other.scope != scope) return false
+        if (other.nodes.isEmpty()) return true
+        return other.nodes.map {
+            this.nodes[it.key] == it.value
+        }.reduce { acc, b -> acc.and(b) }
+    }
+}
+
+open class SchemaNode(
     val name: String? = null,
     override val type: BsonType,
     val options: SchemaAnalyzerOptions = SchemaAnalyzerOptions(),
@@ -232,6 +281,28 @@ class SchemaNode(
                     } else {
                         tnode.inc(node.count)
                     }
+                }
+            }
+
+            is BsonJavaScriptWithScope -> {
+                val node = JavaScriptWithScopeNode(key, value.bsonType, options)
+
+                val tnode = nodes[key]!!.firstOrNull { it == node }
+                // Does this specific node not exist
+                if (tnode == null) {
+                    if (value.code != null) {
+                        val scope = SchemaNode(key, BsonType.DOCUMENT, options)
+                        value.scope.forEach {
+                            scope.addField(it.key, it.value)
+                        }
+
+                        node.scope = scope
+                    }
+
+                    nodes[key]!!.add(node)
+                    types += node.type
+                } else {
+                    tnode.inc(node.count)
                 }
             }
 
