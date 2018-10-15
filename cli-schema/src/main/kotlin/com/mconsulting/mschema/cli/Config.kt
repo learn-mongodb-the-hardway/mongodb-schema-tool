@@ -61,7 +61,7 @@ class SchemaConfig(parser: ArgParser) {
     val outputFormat by parser.storing("--format", help = """Schema: Output format for schema extractor, one of ["schema", "json-schema-v4"], ex: [--output schema]""") {
         when (this.toLowerCase()) {
             "schema" -> OutputFormat.SCHEMA
-            "json-schema-v4" -> OutputFormat.JSON_SCHEMA_V4
+            "mongodb-schema-v4" -> OutputFormat.MONGODB_SCHEMA_V4
             else -> throw InvalidArgumentException("""Output format for schema extractor, one of ["schema", "json-schema-v4"], ex: [--output schema]""")
         }
     }.default(OutputFormat.SCHEMA)

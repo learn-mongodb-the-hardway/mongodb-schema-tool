@@ -5,6 +5,7 @@ import org.bson.codecs.BsonValueCodecProvider
 import org.bson.codecs.DocumentCodecProvider
 import org.bson.codecs.ValueCodecProvider
 import org.bson.codecs.configuration.CodecRegistries
+import org.bson.types.ObjectId
 import java.util.*
 
 @DslMarker
@@ -44,6 +45,7 @@ sealed class FieldCollectionHelper<T> : Helper<T>() {
             is Short,
             is Byte,
             is Float,
+            is ObjectId,
             is Date -> {
                 fields += PrimitiveField(name, value)
             }

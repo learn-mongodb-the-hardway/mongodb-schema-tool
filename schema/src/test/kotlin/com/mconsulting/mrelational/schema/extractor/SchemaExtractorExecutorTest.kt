@@ -37,7 +37,6 @@ class SchemaExtractorExecutorTest {
         println()
     }
 
-
     companion object {
         lateinit var client: MongoClient
         lateinit var db: MongoDatabase

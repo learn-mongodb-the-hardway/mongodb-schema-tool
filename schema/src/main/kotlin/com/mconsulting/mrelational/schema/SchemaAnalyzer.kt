@@ -1,8 +1,8 @@
 package com.mconsulting.mrelational.schema
 
 import com.mconsulting.mrelational.schema.extractor.OutputFormat
-import com.mconsulting.mrelational.schema.json.Draft4Generator
-import com.mconsulting.mrelational.schema.json.Draft4GeneratorOptions
+import com.mconsulting.mrelational.schema.json.MongoDraft4Generator
+import com.mconsulting.mrelational.schema.json.MongoDraft4GeneratorOptions
 import com.mconsulting.mrelational.schema.json.SchemaGenerator
 import org.bson.BsonArray
 import org.bson.BsonDocument
@@ -35,17 +35,18 @@ class Schema(
             && node == other.node
     }
 
-    fun toJson(outputFormat: OutputFormat = OutputFormat.JSON_SCHEMA_V4): String {
-        val settings = JsonWriterSettings.builder().indent(true).build()
+    fun toJson(outputFormat: OutputFormat = OutputFormat.MONGODB_SCHEMA_V4): String {
+        return toBson(outputFormat).toJson(JsonWriterSettings.builder().indent(true).build())
+    }
 
+    fun toBson(outputFormat: OutputFormat = OutputFormat.MONGODB_SCHEMA_V4) : BsonDocument {
         return when (outputFormat) {
-            OutputFormat.JSON_SCHEMA_V4 -> {
-                Draft4Generator(Draft4GeneratorOptions(
-                    useJsonTypesWherePossible = true
-                )).generate(this).toJson(settings)
-            }
             OutputFormat.SCHEMA -> {
-                SchemaGenerator().generate(this).toJson(settings)
+                SchemaGenerator().generate(this)
+            }
+            OutputFormat.MONGODB_SCHEMA_V4 -> {
+                MongoDraft4Generator(MongoDraft4GeneratorOptions())
+                    .generate(this)
             }
         }
     }

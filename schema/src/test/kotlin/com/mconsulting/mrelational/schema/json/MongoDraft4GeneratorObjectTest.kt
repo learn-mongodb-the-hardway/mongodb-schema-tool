@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
-class Draft4GeneratorObjectTest {
+class MongoDraft4GeneratorObjectTest {
 
     @Test
     fun generateSimpleJsonSchema() {
@@ -31,20 +31,19 @@ class Draft4GeneratorObjectTest {
         // Get the schema
         val schema = analyzer.process(documents)
         // Generate the json schema
-        val jsonSchema = Draft4Generator().generate(schema)
+        val jsonSchema = MongoDraft4Generator().generate(schema)
         // Expected
         val expectedSchema = BsonDocument.parse("""
             {
-              "${'$'}schema" : "http://json-schema.org/draft-04/schema#",
               "description" : "db.coll MongoDB Schema",
-              "type" : "object",
+              "bsonType" : "object",
               "required" : ["a", "b"],
               "properties" : {
                 "a" : {
-                  "${'$'}type" : "int"
+                  "bsonType" : "int"
                 },
                 "b" : {
-                  "${'$'}type" : "string"
+                  "bsonType" : "string"
                 }
               }
             }
@@ -75,30 +74,29 @@ class Draft4GeneratorObjectTest {
         // Get the schema
         val schema = analyzer.process(documents)
         // Generate the json schema
-        val jsonSchema = Draft4Generator().generate(schema)
+        val jsonSchema = MongoDraft4Generator().generate(schema)
         // Expected
         val expectedSchema = BsonDocument.parse("""
             {
-              "${'$'}schema" : "http://json-schema.org/draft-04/schema#",
               "description" : "db.coll MongoDB Schema",
-              "type" : "object",
+              "bsonType" : "object",
               "required" : ["a", "b", "c"],
               "properties" : {
                 "a" : {
-                  "${'$'}type" : "int"
+                  "bsonType" : "int"
                 },
                 "b" : {
-                  "${'$'}type" : "string"
+                  "bsonType" : "string"
                 },
                 "c" : {
-                  "type" : "object",
+                  "bsonType" : "object",
                   "required" : ["d", "e"],
                   "properties" : {
                     "d" : {
-                      "${'$'}type" : "double"
+                      "bsonType" : "double"
                     },
                     "e" : {
-                      "${'$'}type" : "string"
+                      "bsonType" : "string"
                     }
                   }
                 }
@@ -130,23 +128,22 @@ class Draft4GeneratorObjectTest {
         // Get the schema
         val schema = analyzer.process(documents)
         // Generate the json schema
-        val jsonSchema = Draft4Generator(Draft4GeneratorOptions(true)).generate(schema)
+        val jsonSchema = MongoDraft4Generator(MongoDraft4GeneratorOptions()).generate(schema)
         // Expected
         val expectedSchema = BsonDocument.parse("""
             {
-              "${'$'}schema" : "http://json-schema.org/draft-04/schema#",
               "description" : "db.coll MongoDB Schema",
-              "type" : "object",
+              "bsonType" : "object",
               "required" : ["b", "a"],
               "properties" : {
                 "b" : {
-                  "type" : "string"
+                  "bsonType" : "string"
                 },
                 "a" : {
                   "oneOf" : [{
-                      "type" : "integer"
+                      "bsonType" : "int"
                     }, {
-                      "type" : "string"
+                      "bsonType" : "string"
                     }]
                 }
               }
@@ -187,38 +184,37 @@ class Draft4GeneratorObjectTest {
         // Get the schema
         val schema = analyzer.process(documents)
         // Generate the json schema
-        val jsonSchema = Draft4Generator(Draft4GeneratorOptions(true)).generate(schema)
+        val jsonSchema = MongoDraft4Generator(MongoDraft4GeneratorOptions()).generate(schema)
         // Expected
         val expectedSchema = BsonDocument.parse("""
             {
-              "${'$'}schema" : "http://json-schema.org/draft-04/schema#",
               "description" : "db.coll MongoDB Schema",
-              "type" : "object",
+              "bsonType" : "object",
               "required" : ["a", "b", "c"],
               "properties" : {
                 "a" : {
-                  "type" : "integer"
+                  "bsonType" : "int"
                 },
                 "b" : {
-                  "type" : "string"
+                  "bsonType" : "string"
                 },
                 "c" : {
                   "oneOf" : [{
                       "properties" : {
                         "d" : {
-                          "type" : "number"
+                          "bsonType" : "double"
                         },
                         "e" : {
-                          "type" : "string"
+                          "bsonType" : "string"
                         }
                       }
                     }, {
                       "properties" : {
                         "d" : {
-                          "type" : "string"
+                          "bsonType" : "string"
                         },
                         "e" : {
-                          "type" : "string"
+                          "bsonType" : "string"
                         }
                       }
                     }]
@@ -229,28 +225,5 @@ class Draft4GeneratorObjectTest {
 //        println(jsonSchema.toJson(JsonWriterSettings(true)))
 //        println(expectedSchema.toJson(JsonWriterSettings(true)))
         assertEquals(expectedSchema, jsonSchema)
-    }
-
-    companion object {
-        lateinit var client: MongoClient
-        lateinit var db: MongoDatabase
-        lateinit var tests: MongoCollection<Document>
-
-        @BeforeAll
-        @JvmStatic
-        internal fun beforeAll() {
-//            client = MongoClient(MongoClientURI("mongodb://localhost:27017"))
-//            db = client.getDatabase("mrelational_tests")
-//            tests = db.getCollection("media")
-//
-//            // Drop collection
-//            tests.drop()
-        }
-
-        @AfterAll
-        @JvmStatic
-        internal fun afterAll() {
-//            client.close()
-        }
     }
 }

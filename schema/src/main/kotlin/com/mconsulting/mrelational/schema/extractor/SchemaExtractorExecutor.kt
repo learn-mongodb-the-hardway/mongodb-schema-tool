@@ -14,7 +14,7 @@ import java.io.File
 data class Namespace(val db: String, val collection: String, val limit: Long)
 
 enum class OutputFormat {
-    SCHEMA, JSON_SCHEMA_V4
+    SCHEMA, MONGODB_SCHEMA_V4
 }
 
 data class SchemaExtractorOptions(

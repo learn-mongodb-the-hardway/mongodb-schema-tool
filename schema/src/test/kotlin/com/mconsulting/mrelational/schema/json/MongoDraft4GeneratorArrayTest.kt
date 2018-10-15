@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
-class Draft4GeneratorArrayTest {
+class MongoDraft4GeneratorArrayTest {
     @Test
     fun generateMixedArrayJsonSchema() {
         // Create a document, analyze it and then generate
@@ -37,32 +37,31 @@ class Draft4GeneratorArrayTest {
         // Get the schema
         val schema = analyzer.process(documents)
         // Generate the json schema
-        val jsonSchema = Draft4Generator(Draft4GeneratorOptions(true)).generate(schema)
+        val jsonSchema = MongoDraft4Generator(MongoDraft4GeneratorOptions()).generate(schema)
         // Expected
         val expectedSchema = BsonDocument.parse("""
             {
-              "${'$'}schema" : "http://json-schema.org/draft-04/schema#",
               "description" : "db.coll MongoDB Schema",
-              "type" : "object",
+              "bsonType" : "object",
               "required" : ["a"],
               "properties" : {
                 "a" : {
-                  "type" : "array",
+                  "bsonType" : "array",
                   "items" : {
                     "anyOf" : [{
-                        "type" : "integer"
+                        "bsonType" : "int"
                       }, {
-                        "type" : "object",
+                        "bsonType" : "object",
                         "required" : ["b"],
                         "properties" : {
                           "b" : {
-                            "type" : "number"
+                            "bsonType" : "double"
                           }
                         }
                       }, {
-                        "type" : "array",
+                        "bsonType" : "array",
                         "items" : {
-                          "type" : "string"
+                          "bsonType" : "string"
                         }
                       }]
                   }
@@ -92,19 +91,18 @@ class Draft4GeneratorArrayTest {
         // Get the schema
         val schema = analyzer.process(documents)
         // Generate the json schema
-        val jsonSchema = Draft4Generator(Draft4GeneratorOptions(true)).generate(schema)
+        val jsonSchema = MongoDraft4Generator(MongoDraft4GeneratorOptions()).generate(schema)
         // Expected
         val expectedSchema = BsonDocument.parse("""
             {
-              "${'$'}schema" : "http://json-schema.org/draft-04/schema#",
               "description" : "db.coll MongoDB Schema",
-              "type" : "object",
+              "bsonType" : "object",
               "required" : ["a"],
               "properties" : {
                 "a" : {
-                  "type" : "array",
+                  "bsonType" : "array",
                   "items" : {
-                    "type" : "integer"
+                    "bsonType" : "int"
                   }
                 }
               }
@@ -113,28 +111,5 @@ class Draft4GeneratorArrayTest {
 //        println(jsonSchema.toJson(JsonWriterSettings(true)))
 //        println(expectedSchema.toJson(JsonWriterSettings(true)))
         assertEquals(expectedSchema, jsonSchema)
-    }
-
-    companion object {
-        lateinit var client: MongoClient
-        lateinit var db: MongoDatabase
-        lateinit var tests: MongoCollection<Document>
-
-        @BeforeAll
-        @JvmStatic
-        internal fun beforeAll() {
-//            client = MongoClient(MongoClientURI("mongodb://localhost:27017"))
-//            db = client.getDatabase("mrelational_tests")
-//            tests = db.getCollection("media")
-//
-//            // Drop collection
-//            tests.drop()
-        }
-
-        @AfterAll
-        @JvmStatic
-        internal fun afterAll() {
-//            client.close()
-        }
     }
 }

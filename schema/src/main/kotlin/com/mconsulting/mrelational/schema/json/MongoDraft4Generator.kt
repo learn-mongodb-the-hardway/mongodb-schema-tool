@@ -9,14 +9,13 @@ import org.bson.BsonDocument
 import org.bson.BsonString
 import org.bson.BsonType
 
-class Draft4GeneratorOptions(val useJsonTypesWherePossible: Boolean = false)
+class MongoDraft4GeneratorOptions()
 
-class Draft4Generator(val options: Draft4GeneratorOptions = Draft4GeneratorOptions()) : JsonGenerator {
+class MongoDraft4Generator(val options: MongoDraft4GeneratorOptions = MongoDraft4GeneratorOptions()) : JsonGenerator {
     override fun generate(schema: Schema): BsonDocument {
-        val document = BsonDocument()
-            .append("\$schema", BsonString("http://json-schema.org/draft-04/schema#"))
+        var document = BsonDocument()
             .append("description", BsonString("${schema.db}.${schema.collection} MongoDB Schema"))
-            .append("type", BsonString("object"))
+            .append("bsonType", BsonString("object"))
 
         process(schema, document, schema.node)
 
@@ -97,7 +96,8 @@ class Draft4Generator(val options: Draft4GeneratorOptions = Draft4GeneratorOptio
                 is SchemaNode -> {
                     // If it's not a document or array use the $type extension for MongoDB
                     if (singleNode.type != BsonType.DOCUMENT) {
-                        properties.append(pair.first, mapTypeToJsonSchema(singleNode.type, options))
+                        var doc = mapTypeToJsonSchema(singleNode.type, options)
+                        properties.append(pair.first, doc)
                     } else {
                         val doc = mapTypeToJsonSchema(singleNode.type, options)
                         properties.append(pair.first, doc)
@@ -156,57 +156,30 @@ class Draft4Generator(val options: Draft4GeneratorOptions = Draft4GeneratorOptio
         document.append("properties", properties)
     }
 
-    private fun mapTypeToJsonSchema(type: BsonType, options: Draft4GeneratorOptions): BsonDocument {
-        if (options.useJsonTypesWherePossible) {
-            return when (type) {
-                BsonType.STRING -> BsonDocument().append("type", BsonString("string"))
-                BsonType.INT32 -> BsonDocument().append("type", BsonString("integer"))
-                BsonType.DOUBLE -> BsonDocument().append("type", BsonString("number"))
-                BsonType.NULL -> BsonDocument().append("type", BsonString("null"))
-                BsonType.BOOLEAN -> BsonDocument().append("type", BsonString("boolean"))
-                BsonType.DOCUMENT -> BsonDocument().append("type", BsonString("object"))
-                BsonType.ARRAY -> BsonDocument().append("type", BsonString("array"))
-                BsonType.UNDEFINED -> BsonDocument().append("\$type", BsonString("undefined"))
-                BsonType.MIN_KEY -> BsonDocument().append("\$type", BsonString("minKey"))
-                BsonType.MAX_KEY -> BsonDocument().append("\$type", BsonString("maxKey"))
-                BsonType.REGULAR_EXPRESSION -> BsonDocument().append("\$type", BsonString("regex"))
-                BsonType.TIMESTAMP -> BsonDocument().append("\$type", BsonString("timestamp"))
-                BsonType.DATE_TIME -> BsonDocument().append("\$type", BsonString("date"))
-                BsonType.DECIMAL128 -> BsonDocument().append("\$type", BsonString("decimal"))
-                BsonType.OBJECT_ID -> BsonDocument().append("\$type", BsonString("objectId"))
-                BsonType.SYMBOL -> BsonDocument().append("\$type", BsonString("symbol"))
-                BsonType.JAVASCRIPT_WITH_SCOPE -> BsonDocument().append("\$type", BsonString("javascriptWithScope"))
-                BsonType.JAVASCRIPT -> BsonDocument().append("\$type", BsonString("javascript"))
-                BsonType.INT64 -> BsonDocument().append("\$type", BsonString("long"))
-                BsonType.BINARY -> BsonDocument().append("\$type", BsonString("binary"))
-                BsonType.DB_POINTER -> BsonDocument().append("\$type", BsonString("dbPointer"))
-                else -> throw Exception("type $type not supported")
-            }
-        } else {
-            return when (type) {
-                BsonType.DOCUMENT -> BsonDocument().append("type", BsonString("object"))
-                BsonType.ARRAY -> BsonDocument().append("type", BsonString("array"))
-                BsonType.STRING -> BsonDocument().append("\$type", BsonString("string"))
-                BsonType.INT32 -> BsonDocument().append("\$type", BsonString("int"))
-                BsonType.UNDEFINED -> BsonDocument().append("\$type", BsonString("undefined"))
-                BsonType.MIN_KEY -> BsonDocument().append("\$type", BsonString("minKey"))
-                BsonType.MAX_KEY -> BsonDocument().append("\$type", BsonString("maxKey"))
-                BsonType.REGULAR_EXPRESSION -> BsonDocument().append("\$type", BsonString("regex"))
-                BsonType.TIMESTAMP -> BsonDocument().append("\$type", BsonString("timestamp"))
-                BsonType.DATE_TIME -> BsonDocument().append("\$type", BsonString("date"))
-                BsonType.DECIMAL128 -> BsonDocument().append("\$type", BsonString("decimal"))
-                BsonType.OBJECT_ID -> BsonDocument().append("\$type", BsonString("objectId"))
-                BsonType.SYMBOL -> BsonDocument().append("\$type", BsonString("symbol"))
-                BsonType.DOUBLE -> BsonDocument().append("\$type", BsonString("double"))
-                BsonType.BOOLEAN -> BsonDocument().append("\$type", BsonString("bool"))
-                BsonType.JAVASCRIPT_WITH_SCOPE -> BsonDocument().append("\$type", BsonString("javascriptWithScope"))
-                BsonType.JAVASCRIPT -> BsonDocument().append("\$type", BsonString("javascript"))
-                BsonType.INT64 -> BsonDocument().append("\$type", BsonString("long"))
-                BsonType.BINARY -> BsonDocument().append("\$type", BsonString("binary"))
-                BsonType.DB_POINTER -> BsonDocument().append("\$type", BsonString("dbPointer"))
-                BsonType.NULL -> BsonDocument().append("\$type", BsonString("null"))
-                else -> throw Exception("type $type not supported")
-            }
+    private fun mapTypeToJsonSchema(type: BsonType, options: MongoDraft4GeneratorOptions): BsonDocument {
+        return when (type) {
+            BsonType.STRING -> BsonDocument().append("bsonType", BsonString("string"))
+            BsonType.INT32 -> BsonDocument().append("bsonType", BsonString("int"))
+            BsonType.DOUBLE -> BsonDocument().append("bsonType", BsonString("double"))
+            BsonType.NULL -> BsonDocument().append("bsonType", BsonString("null"))
+            BsonType.BOOLEAN -> BsonDocument().append("bsonType", BsonString("bool"))
+            BsonType.DOCUMENT -> BsonDocument().append("bsonType", BsonString("object"))
+            BsonType.ARRAY -> BsonDocument().append("bsonType", BsonString("array"))
+            BsonType.UNDEFINED -> BsonDocument().append("bsonType", BsonString("undefined"))
+            BsonType.MIN_KEY -> BsonDocument().append("bsonType", BsonString("minKey"))
+            BsonType.MAX_KEY -> BsonDocument().append("bsonType", BsonString("maxKey"))
+            BsonType.REGULAR_EXPRESSION -> BsonDocument().append("bsonType", BsonString("regex"))
+            BsonType.TIMESTAMP -> BsonDocument().append("bsonType", BsonString("timestamp"))
+            BsonType.DATE_TIME -> BsonDocument().append("bsonType", BsonString("date"))
+            BsonType.DECIMAL128 -> BsonDocument().append("bsonType", BsonString("decimal"))
+            BsonType.OBJECT_ID -> BsonDocument().append("bsonType", BsonString("objectId"))
+            BsonType.SYMBOL -> BsonDocument().append("bsonType", BsonString("symbol"))
+            BsonType.JAVASCRIPT_WITH_SCOPE -> BsonDocument().append("bsonType", BsonString("javascriptWithScope"))
+            BsonType.JAVASCRIPT -> BsonDocument().append("bsonType", BsonString("javascript"))
+            BsonType.INT64 -> BsonDocument().append("bsonType", BsonString("long"))
+            BsonType.BINARY -> BsonDocument().append("bsonType", BsonString("binary"))
+            BsonType.DB_POINTER -> BsonDocument().append("bsonType", BsonString("dbPointer"))
+            else -> throw Exception("type $type not supported")
         }
     }
 }
