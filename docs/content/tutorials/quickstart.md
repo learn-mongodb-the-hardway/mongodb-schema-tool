@@ -52,3 +52,9 @@ description.
 This tool makes the assumption that you have a `Java 8` or higher installed to be able to run the
 tool from the commandline. You need to be able to run the `java` command on the command line to
 execute the tool.
+
+Let's run the tool to extract the schemas
+
+```bash
+java -jar 
+```

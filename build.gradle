@@ -24,6 +24,7 @@ buildscript {
     }
 
     dependencies {
+        classpath "com.github.jengelman.gradle.plugins:shadow:4.0.1"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "gradle.plugin.org.jmailen.gradle:kotlinter-gradle:$kotlinterVersion"
         classpath "gradle.plugin.com.github.breadmoirai:github-release:$githubReleaseVersion"
@@ -68,10 +69,10 @@ subprojects {
         compile "io.github.microutils:kotlin-logging:$kotlinLoggingVersion"
         compile "org.mongodb:mongodb-driver:$mongodbDriverVersion"
 
-        compile "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
-        compile "org.jetbrains.kotlin:kotlin-script-runtime:$kotlinVersion"
-        compile "org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion"
-        compile "org.jetbrains.kotlin:kotlin-script-util:$kotlinVersion"
+//        compile "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+//        compile "org.jetbrains.kotlin:kotlin-script-runtime:$kotlinVersion"
+//        compile "org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion"
+//        compile "org.jetbrains.kotlin:kotlin-script-util:$kotlinVersion"
 
         testCompile "org.junit.jupiter:junit-jupiter-api:$junitVersion"
         testCompile "org.junit.jupiter:junit-jupiter-params:$junitVersion"

@@ -5,6 +5,7 @@ ext {
 }
 
 apply plugin: 'application'
+apply plugin: "com.github.johnrengelman.shadow"
 
 applicationDefaultJvmArgs = ["-Xmx16g"]
 mainClassName = "com.mconsulting.mschema.cli.MainKt"
@@ -16,9 +17,6 @@ repositories {
 
 dependencies {
     compile project(':schema')
-
-//    implementation 'com.beust:klaxon:3.0.1'
-
     compile "com.xenomachina:kotlin-argparser:$kotlinArgparserVersion"
     compile "ch.qos.logback:logback-classic:$logbackVersion"
 
