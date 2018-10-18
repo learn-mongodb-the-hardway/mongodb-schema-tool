@@ -57,7 +57,7 @@ class ApplyConfig(parser: ArgParser) {
 
         // Validation level
         val validationLevelString = parts[1].trim()
-        var validationLevel = ValidationLevel.STRICT
+        val validationLevel:ValidationLevel
 
         try {
             // Validate if it's a valid string
@@ -106,9 +106,9 @@ class GeneralConfig(parser: ArgParser) {
         }
     }
 
-//    val version by parser.option<Unit>("--version", help = "General: display the version") {
-//        throw ShowVersionException("version      : ${App.version}${System.lineSeparator()}git revision : ${App.gitRev}")
-//    }.default(false)
+    val version by parser.option<Unit>("--version", help = "General: display the version") {
+        throw ShowVersionException("version      : ${App.version}${System.lineSeparator()}git revision : ${App.gitRev}")
+    }.default(false)
 
     val extract by parser.flagging("--extract", help = "General: Extract schemas from MongoDB").default(false)
     val apply by parser.flagging("--apply", help = "General: Apply Validation Schemas to MongoDB").default(false)
