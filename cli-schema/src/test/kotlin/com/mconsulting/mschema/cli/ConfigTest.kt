@@ -65,19 +65,7 @@ class ConfigTest {
             ).toTypedArray()).parseInto(::Config).validate()
         }
 
-        assert(exception.message!!.contains("--schema validationLevel [//localhost] is not a valid MongoDB validation level. Please user one of [STRICT, MODERATE]"))
-    }
-
-    @Test
-    fun shouldFailToParseSchemaInApplyModeDueToIllegalValidationLevel() {
-        val exception = assertThrows<IllegalArgumentException> {
-            ArgParser(listOf(
-                "--apply",
-                "--schema", "db1.coll1:typer:./peter.json"
-            ).toTypedArray()).parseInto(::Config).validate()
-        }
-
-        assert(exception.message!!.contains("--schema validationLevel [typer] is not a valid MongoDB validation level. Please user one of [STRICT, MODERATE]"))
+        assert(exception.message!!.contains("--schema file at //localhost:27017 does not exist or is not a file"))
     }
 
     @Test
@@ -85,7 +73,7 @@ class ConfigTest {
         val exception = assertThrows<IllegalArgumentException> {
             ArgParser(listOf(
                 "--apply",
-                "--schema", "db1.coll1:strict:./fdsafdsfsd"
+                "--schema", "db1.coll1:./fdsafdsfsd"
             ).toTypedArray()).parseInto(::Config).validate()
         }
 
@@ -93,15 +81,31 @@ class ConfigTest {
     }
 
     @Test
-    fun shouldCorrectlyParseApply() {
+    fun shouldFailDueToWrongValidationLevel() {
         val exception = assertThrows<IllegalArgumentException> {
             ArgParser(listOf(
                 "--apply",
+                "--validationLevel",
+                "people",
                 "--schema", "db1.coll1:strict:./fdsafdsfsd:100"
             ).toTypedArray()).parseInto(::Config).validate()
         }
 
-        assert(exception.message!!.contains("--schema file at ./fdsafdsfsd:100 does not exist or is not a file"))
+        assert(exception.message!!.contains("--validationLevel [people] is not a valid MongoDB validation level. Please user one of [STRICT, MODERATE]"))
+    }
+
+    @Test
+    fun shouldFailDueToWrongValidationAction() {
+        val exception = assertThrows<IllegalArgumentException> {
+            ArgParser(listOf(
+                "--apply",
+                "--validationAction",
+                "people",
+                "--schema", "db1.coll1:strict:./fdsafdsfsd:100"
+            ).toTypedArray()).parseInto(::Config).validate()
+        }
+
+        assert(exception.message!!.contains("--validationAction [people] is not a valid MongoDB validation action. Please user one of [ERROR, WARN]"))
     }
 
     @Test
@@ -110,9 +114,9 @@ class ConfigTest {
             ArgParser(listOf(
                 "--apply",
                 "--schema",
-                "quickstart.sights:strict:./quickstart_sights_2018-10-18T10:29Z.json",
+                "quickstart.sights:./quickstart_sights_2018-10-18T10:29Z.json",
                 "--schema",
-                "quickstart.users:strict:./quickstart_users_2018-10-18T10:29Z.json",
+                "quickstart.users:./quickstart_users_2018-10-18T10:29Z.json",
                 "--uri",
                 "mongodb://localhost:27017"
             ).toTypedArray()).parseInto(::Config).validate()

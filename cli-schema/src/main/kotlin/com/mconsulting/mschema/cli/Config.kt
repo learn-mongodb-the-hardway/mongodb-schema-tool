@@ -3,6 +3,7 @@ package com.mconsulting.mschema.cli
 import com.mconsulting.mrelational.schema.extractor.Namespace
 import com.mconsulting.mrelational.schema.extractor.OutputFormat
 import com.mongodb.MongoClientURI
+import com.mongodb.client.model.ValidationAction
 import com.mongodb.client.model.ValidationLevel
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.InvalidArgumentException
@@ -31,7 +32,7 @@ class Config(parser: ArgParser) {
     }
 }
 
-data class FileNamespace(val db: String, val collection: String, val validationLevel: ValidationLevel, val file: File)
+data class FileNamespace(val db: String, val collection: String, val validationLevel: ValidationLevel, val validationAction: ValidationAction, val file: File)
 
 class LoggingConfig(parser: ArgParser) {
     val quiet by parser.flagging("--quiet", help = "Logging: turn off all logging").default(false)
@@ -48,26 +49,44 @@ class ApplyConfig(parser: ArgParser) {
         }
     }
 
-    val schemas by parser.adding("--schema", help = "Apply: Specify a schema to apply, format <db.collection:validationlevel:file>, ex: [db1.coll:strict:./quickstart_users_2018-10-18T09:03Z.json]") {
-        val parts = this.split(":")
-
-        if (parts.size < 3) {
-            throw IllegalArgumentException("--schema must be of format <db.collection:validationlevel:file>, ex: [db1.coll:strict:./quickstart_users_2018-10-18T09:03Z.json]")
-        }
-
-        // Validation level
-        val validationLevelString = parts[1].trim()
-        val validationLevel:ValidationLevel
-
+    val validationLevel by parser.storing("--validationLevel", help = """Apply: Specify the MongoDB Schema Validation Level. Must be one of [${ValidationLevel.STRICT}, ${ValidationLevel.MODERATE}]""") {
         try {
             // Validate if it's a valid string
-            validationLevel = ValidationLevel.valueOf(validationLevelString.toUpperCase())
+            ValidationLevel.valueOf(this.toUpperCase())
         } catch (exception: IllegalArgumentException) {
-            throw IllegalArgumentException("--schema validationLevel [$validationLevelString] is not a valid MongoDB validation level. Please user one of [${ValidationLevel.STRICT}, ${ValidationLevel.MODERATE}]")
+            throw IllegalArgumentException("--validationLevel [$this] is not a valid MongoDB validation level. Please user one of [${ValidationLevel.STRICT}, ${ValidationLevel.MODERATE}]")
+        }
+    }.default(ValidationLevel.STRICT)
+
+    val validationAction by parser.storing("--validationAction", help = """Apply: Specify the MongoDB Schema Validation Action. Must be one of [${ValidationAction.ERROR}, ${ValidationAction.WARN}]""") {
+        try {
+            // Validate if it's a valid string
+            ValidationAction.valueOf(this.toUpperCase())
+        } catch (exception: IllegalArgumentException) {
+            throw IllegalArgumentException("--validationAction [$this] is not a valid MongoDB validation action. Please user one of [${ValidationAction.ERROR}, ${ValidationAction.WARN}]")
+        }
+    }.default(ValidationAction.ERROR)
+
+    val schemas by parser.adding("--schema", help = "Apply: Specify a schema to apply, format <db.collection:file>, ex: [db1.coll:./quickstart_users_2018-10-18T09:03Z.json]") {
+        val parts = this.split(":")
+
+        if (parts.size < 2) {
+            throw IllegalArgumentException("--schema must be of format <db.collection:file>, ex: [db1.coll:./quickstart_users_2018-10-18T09:03Z.json]")
         }
 
+//        // Validation level
+//        val validationLevelString = parts[1].trim()
+//        val validationLevel:ValidationLevel
+//
+//        try {
+//            // Validate if it's a valid string
+//            validationLevel = ValidationLevel.valueOf(validationLevelString.toUpperCase())
+//        } catch (exception: IllegalArgumentException) {
+//            throw IllegalArgumentException("--schema validationLevel [$validationLevelString] is not a valid MongoDB validation level. Please user one of [${ValidationLevel.STRICT}, ${ValidationLevel.MODERATE}]")
+//        }
+
         // Get the file name
-        val fileName = parts.subList(2, parts.size).joinToString(":").trim()
+        val fileName = parts.subList(1, parts.size).joinToString(":").trim()
         // Second part must be an existing file
         val file = File(fileName)
         if (!file.exists() || !file.isFile) {
@@ -78,11 +97,11 @@ class ApplyConfig(parser: ArgParser) {
 
         // Validate the namespace
         if (namespaceParts.size != 2) {
-            throw IllegalArgumentException("--schema must be of format <db.collection:validationlevel:file>, ex: [db1.coll:strict:./quickstart_users_2018-10-18T09:03Z.json]")
+            throw IllegalArgumentException("--schema must be of format <db.collection:file>, ex: [db1.coll:./quickstart_users_2018-10-18T09:03Z.json]")
         }
 
         // Create a validation Level
-        FileNamespace(namespaceParts.first(), namespaceParts.last(), validationLevel, file)
+        FileNamespace(namespaceParts.first(), namespaceParts.last(), validationLevel, validationAction, file)
     }
 }
 
