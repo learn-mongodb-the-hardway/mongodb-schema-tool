@@ -1,13 +1,9 @@
 package com.mconsulting.mrelational.schema.commands
 
 import com.mongodb.MongoClient
+import com.mongodb.client.model.ValidationLevel
 import org.bson.BsonDocument
 import org.bson.BsonString
-
-enum class ValidationLevel {
-    STRICT,
-    MODERATE
-}
 
 data class ValidationOptions(val validationLevel: ValidationLevel)
 
@@ -21,7 +17,5 @@ class SetJsonSchemaOnCollectionCommand(val client: MongoClient) {
                     .append("\$jsonSchema", jsonSchema))
                 .append("validationLevel", BsonString(options.validationLevel.name.toLowerCase()))
         )
-
-        println()
     }
 }

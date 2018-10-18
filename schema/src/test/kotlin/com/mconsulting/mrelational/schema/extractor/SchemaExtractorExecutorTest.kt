@@ -15,10 +15,7 @@ class SchemaExtractorExecutorTest {
 
     @Test
     fun simpleExtraction() {
-        val executor = SchemaExtractorExecutor(SchemaExtractorOptions(
-            uri = uri,
-            outputFormat = OutputFormat.SCHEMA,
-            outputDirectory = File(System.getProperty("java.io.tmpdir")),
+        val executor = SchemaExtractorExecutor(MongoClient(uri), SchemaExtractorOptions(
             namespaces = listOf(
                 Namespace(db.name, extractor1.namespace.collectionName, 10),
                 Namespace(db.name, extractor2.namespace.collectionName, 10)

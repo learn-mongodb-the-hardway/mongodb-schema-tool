@@ -25,6 +25,8 @@ class Schema(
     val collection: String,
     private val options: SchemaAnalyzerOptions = SchemaAnalyzerOptions(),
     val node: Node = SchemaNode(options = options, type = BsonType.DOCUMENT, count = 0)) {
+    val namespace: String
+        get() = "${db}.$collection"
 
     override fun equals(other: Any?): Boolean {
         if (other == null) return false

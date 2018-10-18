@@ -56,5 +56,21 @@ execute the tool.
 Let's run the tool to extract the schemas
 
 ```bash
-java -jar 
+java -jar ./mongo-relational-cli-schema-1.0-SNAPSHOT-all.jar --extract --uri mongodb://localhost:27017 --namespace quickstart.users:1000 --namespace quickstart.sights:1000 --format mongodb-schema-v4 --output-directory ./
 ```
+
+This will a schema file for each of the collections.
+
+```bash
+.\quickstart_users_2018-10-18T08:51Z.json
+.\quickstart_sights_2018-10-18T08:51Z.json
+```
+
+The file name has the following format (<db>_<collection>_<timestamp>.json). It includes a timestamp to
+make it easier to keep track of when the schema was extracted.
+
+## Applying the Schema to MongoDB
+
+We can also use the tool to apply the files to the MongoDB Collections. It is important to note that only the `mongodb-schema-v4` format jsons can be
+used with MongoDB to validate documents.
+

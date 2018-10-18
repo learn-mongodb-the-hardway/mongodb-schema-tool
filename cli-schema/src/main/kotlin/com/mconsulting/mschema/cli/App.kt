@@ -11,17 +11,30 @@ import ch.qos.logback.core.ConsoleAppender
 import ch.qos.logback.core.FileAppender
 import ch.qos.logback.core.encoder.Encoder
 import ch.qos.logback.core.spi.FilterReply
+import com.mconsulting.mrelational.schema.commands.SetJsonSchemaOnCollectionCommand
+import com.mconsulting.mrelational.schema.commands.ValidationOptions
 import com.mconsulting.mrelational.schema.extractor.SchemaExtractorExecutor
 import com.mconsulting.mrelational.schema.extractor.SchemaExtractorOptions
+import com.mongodb.MongoClient
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.HelpFormatter
 import com.xenomachina.argparser.ShowHelpException
 import com.xenomachina.argparser.SystemExitException
 import mu.KLogging
+import org.bson.BsonDocument
 import org.slf4j.Marker
+import java.io.File
 import java.io.OutputStreamWriter
 import java.io.Writer
+import java.text.SimpleDateFormat
 import java.util.*
+
+fun Date.toISO8601() : String {
+    val tz = TimeZone.getTimeZone("UTC");
+    val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+    df.setTimeZone(tz);
+    return df.format(this);
+}
 
 object App : KLogging() {
     private val props by lazy {
@@ -46,22 +59,63 @@ object App : KLogging() {
             loadConfig(arrayOf("--help"))
         }
 
-        logger.info("version      : ${App.version}")
-        logger.info("git revision : ${App.gitRev}")
-
         // Parse the options
         val config = loadConfig(args)
         // Attempt to validate the options
         config.validate()
 
+        logger.info("version      : ${App.version}")
+        logger.info("git revision : ${App.gitRev}")
+
+        // Connect to MongoDB
+        val client = MongoClient(config.general.uri)
+
+        // Are we extracting a schema
+        if (config.general.extract) {
+            extractSchemas(client, config)
+        } else if (config.general.apply) {
+            applySchemas(client, config)
+        }
+
+        // Close MongoDB Connection
+        client.close()
+    }
+
+    private fun applySchemas(client: MongoClient, config: Config) {
+        // For each namespace apply it
+        config.apply.schemas.forEach {
+            // Load and parse the json document into a BsonDocument
+            val json = it.file.readText()
+            val document = BsonDocument.parse(json)
+            logger.info { "applying schema from [${it.file.absolutePath}] to [${it.db}.${it.collection}]" }
+            try {
+                // Execute the command
+                SetJsonSchemaOnCollectionCommand(client)
+                    .execute(it.db, it.collection, document, ValidationOptions(it.validationLevel))
+            } catch (exception: Exception) {
+                logger.info { "failed to apply schema from [${it.file.absolutePath}] to [${it.db}.${it.collection}]" }
+                throw SystemExitException("${exception.message}", 1)
+            }
+
+            logger.info { "successfully applied schema from [${it.file.absolutePath}] to [${it.db}.${it.collection}]" }
+        }
+    }
+
+    private fun extractSchemas(client: MongoClient, config: Config) {
         // Create SchemaExtractorExecutor
-        SchemaExtractorExecutor(SchemaExtractorOptions(
-            uri = config.schema.uri,
-            namespaces = config.schema.namespaces,
-            outputDirectory = config.schema.outputDirectory,
-            outputFormat = config.schema.outputFormat,
-            mergeDocuments = config.schema.mergeDocuments
+        val schemas = SchemaExtractorExecutor(client, SchemaExtractorOptions(
+            namespaces = config.extract.namespaces,
+            mergeDocuments = config.extract.mergeDocuments
         )).execute()
+
+        // Write the schemas out
+        schemas.forEach {
+            val json = it.toJson(config.extract.outputFormat)
+            val fileName = "${it.db}_${it.collection}_${Date().toISO8601()}.json"
+            val file = File("${config.extract.outputDirectory}", fileName)
+            logger.info { "writing collection [${it.namespace} schema to ${file.absolutePath}" }
+            file.writeText(json)
+        }
     }
 
     private fun execute(body: () -> Unit) {
@@ -122,7 +176,7 @@ object App : KLogging() {
 
         loggerContext.addTurboFilter(object : TurboFilter() {
             override fun decide(marker: Marker?, logger: ch.qos.logback.classic.Logger?, level: Level?, format: String?, params: Array<out Any>?, t: Throwable?): FilterReply {
-                return if (logger?.name?.startsWith("com.mongodb.migrator") == false) {
+                return if (logger?.name?.startsWith("com.mconsulting.mschema") == false) {
                     FilterReply.DENY
                 } else FilterReply.NEUTRAL
             }

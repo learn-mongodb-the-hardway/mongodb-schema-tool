@@ -18,20 +18,11 @@ enum class OutputFormat {
 }
 
 data class SchemaExtractorOptions(
-    val uri: MongoClientURI,
     val namespaces: List<Namespace>,
-    val outputDirectory: File,
-    val outputFormat: OutputFormat,
     val mergeDocuments: Boolean
 )
 
-class SchemaExtractorExecutor(val options: SchemaExtractorOptions) {
-    private var client: MongoClient
-
-    init {
-        client = MongoClient(options.uri)
-    }
-
+class SchemaExtractorExecutor(val client: MongoClient, val options: SchemaExtractorOptions) {
     fun execute() : List<Schema> {
         // For each namespace generate the Schema
         return options.namespaces.map { namespace ->
