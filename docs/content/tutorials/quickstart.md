@@ -1,7 +1,7 @@
 ---
 title: "QuickStart"
 date: 2018-10-16T10:53:09+02:00
-draft: true
+draft: false
 ---
 
 Welcome to the QuickStart guide. In this guide we are going to cover how to use the tool to extract
@@ -21,7 +21,7 @@ This QuickStart makes the assumption that you have a `MongoDB instance` running 
 We also assume you have `Java 8` installed on your computer and that the `java` command is available from you command line prompt.
 
 Finally we assume you have downloaded the latest release of the Schema Extraction Tool. In our case that is
-the `mongo-relational-cli-schema-1.0-SNAPSHOT-all.jar` file.
+the `{{% jarname %}}` file.
 
 ## Preloading Data
 
@@ -64,7 +64,7 @@ execute the tool.
 Let's run the tool to extract the schemas
 
 ```bash
-java -jar ./mongo-relational-cli-schema-1.0-SNAPSHOT-all.jar --extract --uri mongodb://localhost:27017 --namespace quickstart.users:1000 --namespace quickstart.sights:1000 --format mongodb-schema-v4 --output-directory ./
+java -jar ./{{% jarname %}} --extract --uri mongodb://localhost:27017 --namespace quickstart.users:1000 --namespace quickstart.sights:1000 --format mongodb-schema-v4 --output-directory ./
 ```
 
 This will create a schema file for each of the collections.
@@ -85,7 +85,7 @@ used with MongoDB to validate documents.
 To apply the the two json files above we execute the following command.
 
 ```bash
-java -jar ./mongo-relational-cli-schema-1.0-SNAPSHOT-all.jar --apply --uri mongodb://localhost:27017 --schema quickstart.users:./quickstart_users_2018-10-18T08:51Z.json --schema quickstart.sights:./quickstart_sights_2018-10-18T08:51Z.json --validationLevel strict --validationAction error
+java -jar ./{{% jarname %}} --apply --uri mongodb://localhost:27017 --schema quickstart.users:./quickstart_users_2018-10-18T08:51Z.json --schema quickstart.sights:./quickstart_sights_2018-10-18T08:51Z.json --validationLevel strict --validationAction error
 ```
 
 This will successfully add the two generated validation schemas to their respective collections setting the validation level

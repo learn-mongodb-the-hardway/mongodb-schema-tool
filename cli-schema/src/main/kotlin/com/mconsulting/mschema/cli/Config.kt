@@ -74,17 +74,6 @@ class ApplyConfig(parser: ArgParser) {
             throw IllegalArgumentException("--schema must be of format <db.collection:file>, ex: [db1.coll:./quickstart_users_2018-10-18T09:03Z.json]")
         }
 
-//        // Validation level
-//        val validationLevelString = parts[1].trim()
-//        val validationLevel:ValidationLevel
-//
-//        try {
-//            // Validate if it's a valid string
-//            validationLevel = ValidationLevel.valueOf(validationLevelString.toUpperCase())
-//        } catch (exception: IllegalArgumentException) {
-//            throw IllegalArgumentException("--schema validationLevel [$validationLevelString] is not a valid MongoDB validation level. Please user one of [${ValidationLevel.STRICT}, ${ValidationLevel.MODERATE}]")
-//        }
-
         // Get the file name
         val fileName = parts.subList(1, parts.size).joinToString(":").trim()
         // Second part must be an existing file
@@ -132,7 +121,7 @@ class GeneralConfig(parser: ArgParser) {
     val extract by parser.flagging("--extract", help = "General: Extract schemas from MongoDB").default(false)
     val apply by parser.flagging("--apply", help = "General: Apply Validation Schemas to MongoDB").default(false)
 
-    val uri by parser.storing("--uri", help = "Extract: MongoDB URI connection string [--uri mongodb://localhost:27017]") {
+    val uri by parser.storing("--uri", help = "Connection: MongoDB URI connection string [--uri mongodb://localhost:27017]") {
         MongoClientURI(this)
     }
 }
