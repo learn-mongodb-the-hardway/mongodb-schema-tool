@@ -6,3 +6,4 @@ theme = "hugo-theme-learn"
 [params]
 ordersectionsby = "weight"
 jarname = "mongo-relational-cli-schema-1.0-SNAPSHOT-all.jar"
+title = "Schema Extraction Tool"

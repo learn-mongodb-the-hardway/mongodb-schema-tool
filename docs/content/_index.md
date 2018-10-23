@@ -1,4 +1,4 @@
-# Overview
+# MongoDB Schema Extraction Tool
 
 The Schema Extraction and application tool is a tool to help you work with MongoDB Schema validation.
 
