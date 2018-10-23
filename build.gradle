@@ -1,6 +1,8 @@
 buildscript {
 
     ext {
+        githubRepo = "https://learn-mongodb-the-hardway.github.io/mongodb-schema-tool"
+
         kotlinVersion = '1.2.61'
         junitPlatformVersion = '1.0.2'
         kotlinterVersion = '1.12.0'
@@ -150,4 +152,22 @@ task dist(type: Copy) {
 
 task release {
     dependsOn 'githubRelease'
+}
+
+task generateDocs(type:Exec) {
+    workingDir './'
+
+    //on windows:
+    commandLine "cmd", "/c", "hugo -s ./docs_template -b $githubRepo -d ../docs"
+
+//    //on linux
+//    commandLine 'hugo -s ./docs_template -b http://localhost -d ../docs'
+
+    //store the output instead of printing to the console:
+    standardOutput = new ByteArrayOutputStream()
+
+    //extension method stopTomcat.output() can be used to obtain the output:
+    ext.output = {
+        return standardOutput.toString()
+    }
 }

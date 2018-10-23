@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>MongoDB Tools</title>
+    <link>https://learn-mongodb-the-hardway.github.io/mongodb-schema-tool/</link>
+    <description>Recent content on MongoDB Tools</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 23 Oct 2018 09:34:11 +0200</lastBuildDate>
+    
+	<atom:link href="https://learn-mongodb-the-hardway.github.io/mongodb-schema-tool/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Commandline Options</title>
+      <link>https://learn-mongodb-the-hardway.github.io/mongodb-schema-tool/documentation/options/</link>
+      <pubDate>Tue, 23 Oct 2018 09:34:11 +0200</pubDate>
+      
+      <guid>https://learn-mongodb-the-hardway.github.io/mongodb-schema-tool/documentation/options/</guid>
+      <description>This section documents the command line options and how they work.
+General Options The general options control the main functions of the tool. These are broken up into the two main functions of --extract and --apply which extracts schemas from MongoDB or applies an existing schema to MongoDB.
+   Option Multiple Description     &amp;ndash;extract - Extract Schemas from MongoDB   &amp;ndash;apply - Apply a MongoDB format JSON Schema to a MongoDB collection   -h, &amp;ndash;help - Display command line help information   &amp;ndash;version - Display the command line version information    Logging Options Allows for setting the logging options for the tool.</description>
+    </item>
+    
+    <item>
+      <title>Commandline Examples</title>
+      <link>https://learn-mongodb-the-hardway.github.io/mongodb-schema-tool/documentation/examples/</link>
+      <pubDate>Tue, 23 Oct 2018 09:34:11 +0200</pubDate>
+      
+      <guid>https://learn-mongodb-the-hardway.github.io/mongodb-schema-tool/documentation/examples/</guid>
+      <description>Extract Two Collection Schemas In this simple example we are going to extract two simple collection Schemas.
+java -jar .\mongo-relational-cli-schema-1.0-SNAPSHOT-all.jar --extract --uri mongodb://localhost:27017 --format mongodb-schema-v4 --namespace appdb.users:0 --namespace appdb.items:1000 --output-directory ./  Let&amp;rsquo;s break down the command line. This will connect to the MongoDB server at the host localhost and port 27017. It specifies that the output format will be mongodb-schema-v4 which is the MongoDB Json Schema format. Finally we will write a Schema .</description>
+    </item>
+    
+    <item>
+      <title>QuickStart</title>
+      <link>https://learn-mongodb-the-hardway.github.io/mongodb-schema-tool/tutorials/quickstart/</link>
+      <pubDate>Tue, 16 Oct 2018 10:53:09 +0200</pubDate>
+      
+      <guid>https://learn-mongodb-the-hardway.github.io/mongodb-schema-tool/tutorials/quickstart/</guid>
+      <description>Welcome to the QuickStart guide. In this guide we are going to cover how to use the tool to extract a schema from a MongoDB database and review then apply the validation schema to MongoDB. We are going to follow the following steps in the tutorial.
+ Preload some dummy data into a running MongoDB instance. Run the tool against MongoDB to extract the Schema of the collections. Apply the Schemas to the existing collections.</description>
+    </item>
+    
+    <item>
+      <title></title>
+      <link>https://learn-mongodb-the-hardway.github.io/mongodb-schema-tool/history/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://learn-mongodb-the-hardway.github.io/mongodb-schema-tool/history/</guid>
+      <description> 1.0.0  Basic extract Schema extraction functionality. Basic apply Schema functionality.  </description>
+    </item>
+    
+  </channel>
+</rss>

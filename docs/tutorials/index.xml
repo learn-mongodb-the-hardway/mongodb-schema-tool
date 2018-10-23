@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tutorials on MongoDB Tools</title>
+    <link>https://learn-mongodb-the-hardway.github.io/mongodb-schema-tool/tutorials/</link>
+    <description>Recent content in Tutorials on MongoDB Tools</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 16 Oct 2018 10:53:09 +0200</lastBuildDate>
+    
+	<atom:link href="https://learn-mongodb-the-hardway.github.io/mongodb-schema-tool/tutorials/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>QuickStart</title>
+      <link>https://learn-mongodb-the-hardway.github.io/mongodb-schema-tool/tutorials/quickstart/</link>
+      <pubDate>Tue, 16 Oct 2018 10:53:09 +0200</pubDate>
+      
+      <guid>https://learn-mongodb-the-hardway.github.io/mongodb-schema-tool/tutorials/quickstart/</guid>
+      <description>Welcome to the QuickStart guide. In this guide we are going to cover how to use the tool to extract a schema from a MongoDB database and review then apply the validation schema to MongoDB. We are going to follow the following steps in the tutorial.
+ Preload some dummy data into a running MongoDB instance. Run the tool against MongoDB to extract the Schema of the collections. Apply the Schemas to the existing collections.</description>
+    </item>
+    
+  </channel>
+</rss>
