@@ -12,18 +12,18 @@
     <title>Commandline Examples :: MongoDB Tools</title>
 
     
-    <link href="/mongodb-schema-tool/css/nucleus.css?1540314733" rel="stylesheet">
-    <link href="/mongodb-schema-tool/css/fontawesome-all.min.css?1540314733" rel="stylesheet">
-    <link href="/mongodb-schema-tool/css/hybrid.css?1540314733" rel="stylesheet">
-    <link href="/mongodb-schema-tool/css/featherlight.min.css?1540314733" rel="stylesheet">
-    <link href="/mongodb-schema-tool/css/perfect-scrollbar.min.css?1540314733" rel="stylesheet">
-    <link href="/mongodb-schema-tool/css/auto-complete.css?1540314733" rel="stylesheet">
-    <link href="/mongodb-schema-tool/css/theme.css?1540314733" rel="stylesheet">
-    <link href="/mongodb-schema-tool/css/theme-blue.css?1540314733" rel="stylesheet">
-    <link href="/mongodb-schema-tool/css/hugo-theme.css?1540314733" rel="stylesheet">
+    <link href="/mongodb-schema-tool/css/nucleus.css?1540379318" rel="stylesheet">
+    <link href="/mongodb-schema-tool/css/fontawesome-all.min.css?1540379318" rel="stylesheet">
+    <link href="/mongodb-schema-tool/css/hybrid.css?1540379318" rel="stylesheet">
+    <link href="/mongodb-schema-tool/css/featherlight.min.css?1540379318" rel="stylesheet">
+    <link href="/mongodb-schema-tool/css/perfect-scrollbar.min.css?1540379318" rel="stylesheet">
+    <link href="/mongodb-schema-tool/css/auto-complete.css?1540379318" rel="stylesheet">
+    <link href="/mongodb-schema-tool/css/theme.css?1540379318" rel="stylesheet">
+    <link href="/mongodb-schema-tool/css/theme-blue.css?1540379318" rel="stylesheet">
+    <link href="/mongodb-schema-tool/css/hugo-theme.css?1540379318" rel="stylesheet">
     
 
-    <script src="/mongodb-schema-tool/js/jquery-2.x.min.js?1540314733"></script>
+    <script src="/mongodb-schema-tool/js/jquery-2.x.min.js?1540379318"></script>
 
     <style type="text/css">
       :root #header + #content > #left > #rlblock_left{
@@ -65,14 +65,14 @@
     <span data-search-clear=""><i class="fas fa-close"></i></span>
 </div>
 
-<script type="text/javascript" src="/mongodb-schema-tool/js/lunr.min.js?1540314733"></script>
-<script type="text/javascript" src="/mongodb-schema-tool/js/auto-complete.js?1540314733"></script>
+<script type="text/javascript" src="/mongodb-schema-tool/js/lunr.min.js?1540379318"></script>
+<script type="text/javascript" src="/mongodb-schema-tool/js/auto-complete.js?1540379318"></script>
 <script type="text/javascript">
     
         var baseurl = '\/mongodb-schema-tool';
     
 </script>
-<script type="text/javascript" src="/mongodb-schema-tool/js/search.js?1540314733"></script>
+<script type="text/javascript" src="/mongodb-schema-tool/js/search.js?1540379318"></script>
 
     
   </div>
@@ -303,8 +303,8 @@ file to the directory specified <code>./</code></p>
 
 <p>At the end of a successful execution we have two Schema json files.</p>
 
-<pre><code class="language-bash">./appdb_users_2018-10-18T08:51Z.json
-./appdb_items_2018-10-18T08:51Z.json
+<pre><code class="language-bash">./appdb_users_2018_10_18_08_51.json
+./appdb_items_2018_10_18_08_51.json
 </code></pre>
 
 <p>Each file is made up of the following sections <code>&lt;db name&gt;_&lt;collection name&gt;_&lt;timestamp&gt;.json</code>.</p>
@@ -313,7 +313,7 @@ file to the directory specified <code>./</code></p>
 
 <p>In this simple example we are going to apply a <code>MongodB Json Schema</code> Schema to a collection.</p>
 
-<pre><code class="language-bash">java -jar .\mongo-relational-cli-schema-1.0-SNAPSHOT-all.jar --apply --uri mongodb://localhost:27017 --schema appdb.users:./appdb_users_2018-10-18T08:51Z.json --validationLevel strict --validationAction error
+<pre><code class="language-bash">java -jar .\mongo-relational-cli-schema-1.0-SNAPSHOT-all.jar --apply --uri mongodb://localhost:27017 --schema appdb.users:./appdb_users_2018_10_18_08_51.json --validationLevel strict --validationAction error
 </code></pre>
 
 <p>Let&rsquo;s break down the command line. This will connect to the MongoDB server at the host <code>localhost</code> and port <code>27017</code>. It specifies
@@ -463,20 +463,20 @@ The parameter <code>--validationAction</code> sets the action of MongoDB on a va
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/mongodb-schema-tool/js/clipboard.min.js?1540314733"></script>
-    <script src="/mongodb-schema-tool/js/perfect-scrollbar.min.js?1540314733"></script>
-    <script src="/mongodb-schema-tool/js/perfect-scrollbar.jquery.min.js?1540314733"></script>
-    <script src="/mongodb-schema-tool/js/jquery.sticky.js?1540314733"></script>
-    <script src="/mongodb-schema-tool/js/featherlight.min.js?1540314733"></script>
-    <script src="/mongodb-schema-tool/js/html5shiv-printshiv.min.js?1540314733"></script>
-    <script src="/mongodb-schema-tool/js/highlight.pack.js?1540314733"></script>
+    <script src="/mongodb-schema-tool/js/clipboard.min.js?1540379318"></script>
+    <script src="/mongodb-schema-tool/js/perfect-scrollbar.min.js?1540379318"></script>
+    <script src="/mongodb-schema-tool/js/perfect-scrollbar.jquery.min.js?1540379318"></script>
+    <script src="/mongodb-schema-tool/js/jquery.sticky.js?1540379318"></script>
+    <script src="/mongodb-schema-tool/js/featherlight.min.js?1540379318"></script>
+    <script src="/mongodb-schema-tool/js/html5shiv-printshiv.min.js?1540379318"></script>
+    <script src="/mongodb-schema-tool/js/highlight.pack.js?1540379318"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/mongodb-schema-tool/js/modernizr.custom.71422.js?1540314733"></script>
-    <script src="/mongodb-schema-tool/js/learn.js?1540314733"></script>
-    <script src="/mongodb-schema-tool/js/hugo-learn.js?1540314733"></script>
+    <script src="/mongodb-schema-tool/js/modernizr.custom.71422.js?1540379318"></script>
+    <script src="/mongodb-schema-tool/js/learn.js?1540379318"></script>
+    <script src="/mongodb-schema-tool/js/hugo-learn.js?1540379318"></script>
 
-    <link href="/mongodb-schema-tool/mermaid/mermaid.css?1540314733" type="text/css" rel="stylesheet" />
-    <script src="/mongodb-schema-tool/mermaid/mermaid.js?1540314733"></script>
+    <link href="/mongodb-schema-tool/mermaid/mermaid.css?1540379318" type="text/css" rel="stylesheet" />
+    <script src="/mongodb-schema-tool/mermaid/mermaid.js?1540379318"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>
