@@ -20,8 +20,8 @@ file to the directory specified `./`
 At the end of a successful execution we have two Schema json files.
 
 ```bash
-./appdb_users_2018-10-18T08:51Z.json
-./appdb_items_2018-10-18T08:51Z.json
+./appdb_users_2018_10_18_08_51.json
+./appdb_items_2018_10_18_08_51.json
 ```
 
 Each file is made up of the following sections `<db name>_<collection name>_<timestamp>.json`.
@@ -31,7 +31,7 @@ Each file is made up of the following sections `<db name>_<collection name>_<tim
 In this simple example we are going to apply a `MongodB Json Schema` Schema to a collection.
 
 ```bash
-java -jar .\{{% jarname %}} --apply --uri mongodb://localhost:27017 --schema appdb.users:./appdb_users_2018-10-18T08:51Z.json --validationLevel strict --validationAction error
+java -jar .\{{% jarname %}} --apply --uri mongodb://localhost:27017 --schema appdb.users:./appdb_users_2018_10_18_08_51.json --validationLevel strict --validationAction error
 ```
 
 Let's break down the command line. This will connect to the MongoDB server at the host `localhost` and port `27017`. It specifies

@@ -1,0 +1,880 @@
+{
+  "description" : "db.coll MongoDB Schema",
+  "bsonType" : "object",
+  "required" : ["_id", "type", "uri", "relativePath", "sizeInBytes", "createdOn", "updatedOn", "checksum", "metadata"],
+  "properties" : {
+    "_id" : {
+      "bsonType" : "objectId"
+    },
+    "type" : {
+      "bsonType" : "string"
+    },
+    "uri" : {
+      "bsonType" : "string"
+    },
+    "relativePath" : {
+      "bsonType" : "string"
+    },
+    "sizeInBytes" : {
+      "bsonType" : "int"
+    },
+    "createdOn" : {
+      "bsonType" : "date"
+    },
+    "updatedOn" : {
+      "bsonType" : "date"
+    },
+    "checksum" : {
+      "bsonType" : "string"
+    },
+    "metadata" : {
+      "bsonType" : "object",
+      "required" : ["JPEG", "JpegComment", "JFIF", "ICCProfile", "Huffman", "FileType"],
+      "properties" : {
+        "JPEG" : {
+          "bsonType" : "object",
+          "required" : ["CompressionType", "DataPrecision", "ImageHeight", "ImageWidth", "NumberofComponents", "Component1", "Component2", "Component3"],
+          "properties" : {
+            "CompressionType" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "int"
+                }
+              }
+            },
+            "DataPrecision" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "int"
+                }
+              }
+            },
+            "ImageHeight" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "int"
+                }
+              }
+            },
+            "ImageWidth" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "int"
+                }
+              }
+            },
+            "NumberofComponents" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "int"
+                }
+              }
+            },
+            "Component1" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "object",
+                  "required" : ["componentName", "componentId", "horizontalSamplingFactor", "quantizationTableNumber", "verticalSamplingFactor"],
+                  "properties" : {
+                    "componentName" : {
+                      "bsonType" : "string"
+                    },
+                    "componentId" : {
+                      "bsonType" : "int"
+                    },
+                    "horizontalSamplingFactor" : {
+                      "bsonType" : "int"
+                    },
+                    "quantizationTableNumber" : {
+                      "bsonType" : "int"
+                    },
+                    "verticalSamplingFactor" : {
+                      "bsonType" : "int"
+                    }
+                  }
+                }
+              }
+            },
+            "Component2" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "object",
+                  "required" : ["componentName", "componentId", "horizontalSamplingFactor", "quantizationTableNumber", "verticalSamplingFactor"],
+                  "properties" : {
+                    "componentName" : {
+                      "bsonType" : "string"
+                    },
+                    "componentId" : {
+                      "bsonType" : "int"
+                    },
+                    "horizontalSamplingFactor" : {
+                      "bsonType" : "int"
+                    },
+                    "quantizationTableNumber" : {
+                      "bsonType" : "int"
+                    },
+                    "verticalSamplingFactor" : {
+                      "bsonType" : "int"
+                    }
+                  }
+                }
+              }
+            },
+            "Component3" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "object",
+                  "required" : ["componentName", "componentId", "horizontalSamplingFactor", "quantizationTableNumber", "verticalSamplingFactor"],
+                  "properties" : {
+                    "componentName" : {
+                      "bsonType" : "string"
+                    },
+                    "componentId" : {
+                      "bsonType" : "int"
+                    },
+                    "horizontalSamplingFactor" : {
+                      "bsonType" : "int"
+                    },
+                    "quantizationTableNumber" : {
+                      "bsonType" : "int"
+                    },
+                    "verticalSamplingFactor" : {
+                      "bsonType" : "int"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "JpegComment" : {
+          "bsonType" : "object",
+          "required" : ["JPEGComment"],
+          "properties" : {
+            "JPEGComment" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "string"
+                }
+              }
+            }
+          }
+        },
+        "JFIF" : {
+          "bsonType" : "object",
+          "required" : ["Version", "ResolutionUnits", "XResolution", "YResolution", "ThumbnailWidthPixels", "ThumbnailHeightPixels"],
+          "properties" : {
+            "Version" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "int"
+                }
+              }
+            },
+            "ResolutionUnits" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "int"
+                }
+              }
+            },
+            "XResolution" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "int"
+                }
+              }
+            },
+            "YResolution" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "int"
+                }
+              }
+            },
+            "ThumbnailWidthPixels" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "int"
+                }
+              }
+            },
+            "ThumbnailHeightPixels" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "int"
+                }
+              }
+            }
+          }
+        },
+        "ICCProfile" : {
+          "bsonType" : "object",
+          "required" : ["ProfileSize", "CMMType", "Version", "Class", "Colorspace", "ProfileConnectionSpace", "ProfileDate/Time", "Signature", "PrimaryPlatform", "Devicemanufacturer", "Devicemodel", "XYZvalues", "TagCount", "Copyright", "ProfileDescription", "MediaWhitePoint", "MediaBlackPoint", "RedColorant", "GreenColorant", "BlueColorant", "DeviceMfgDescription", "DeviceModelDescription", "ViewingConditionsDescription", "ViewingConditions", "Luminance", "Measurement", "Technology", "RedTRC", "GreenTRC", "BlueTRC"],
+          "properties" : {
+            "ProfileSize" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "int"
+                }
+              }
+            },
+            "CMMType" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "string"
+                }
+              }
+            },
+            "Version" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "int"
+                }
+              }
+            },
+            "Class" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "string"
+                }
+              }
+            },
+            "Colorspace" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "string"
+                }
+              }
+            },
+            "ProfileConnectionSpace" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "string"
+                }
+              }
+            },
+            "ProfileDate/Time" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "string"
+                }
+              }
+            },
+            "Signature" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "string"
+                }
+              }
+            },
+            "PrimaryPlatform" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "string"
+                }
+              }
+            },
+            "Devicemanufacturer" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "string"
+                }
+              }
+            },
+            "Devicemodel" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "string"
+                }
+              }
+            },
+            "XYZvalues" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "array",
+                  "items" : {
+                    "bsonType" : "double"
+                  }
+                }
+              }
+            },
+            "TagCount" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "int"
+                }
+              }
+            },
+            "Copyright" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "binary"
+                }
+              }
+            },
+            "ProfileDescription" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "binary"
+                }
+              }
+            },
+            "MediaWhitePoint" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "binary"
+                }
+              }
+            },
+            "MediaBlackPoint" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "binary"
+                }
+              }
+            },
+            "RedColorant" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "binary"
+                }
+              }
+            },
+            "GreenColorant" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "binary"
+                }
+              }
+            },
+            "BlueColorant" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "binary"
+                }
+              }
+            },
+            "DeviceMfgDescription" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "binary"
+                }
+              }
+            },
+            "DeviceModelDescription" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "binary"
+                }
+              }
+            },
+            "ViewingConditionsDescription" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "binary"
+                }
+              }
+            },
+            "ViewingConditions" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "binary"
+                }
+              }
+            },
+            "Luminance" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "binary"
+                }
+              }
+            },
+            "Measurement" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "binary"
+                }
+              }
+            },
+            "Technology" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "binary"
+                }
+              }
+            },
+            "RedTRC" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "binary"
+                }
+              }
+            },
+            "GreenTRC" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "binary"
+                }
+              }
+            },
+            "BlueTRC" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "binary"
+                }
+              }
+            }
+          }
+        },
+        "Huffman" : {
+          "bsonType" : "object",
+          "required" : ["NumberofTables"],
+          "properties" : {
+            "NumberofTables" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "int"
+                }
+              }
+            }
+          }
+        },
+        "FileType" : {
+          "bsonType" : "object",
+          "required" : ["DetectedFileTypeName", "DetectedFileTypeLongName", "DetectedMIMEType", "ExpectedFileNameExtension"],
+          "properties" : {
+            "DetectedFileTypeName" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "string"
+                }
+              }
+            },
+            "DetectedFileTypeLongName" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "string"
+                }
+              }
+            },
+            "DetectedMIMEType" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "string"
+                }
+              }
+            },
+            "ExpectedFileNameExtension" : {
+              "bsonType" : "object",
+              "required" : ["tag", "description", "value"],
+              "properties" : {
+                "tag" : {
+                  "bsonType" : "string"
+                },
+                "description" : {
+                  "bsonType" : "string"
+                },
+                "value" : {
+                  "bsonType" : "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -55,6 +55,6 @@ Outlines the all options available when applying a `mongodb-schema-v4` Schema to
 
 | Options | Multiple | Values | Description |
 | --- | --- | --- | --- |
-| --schema | YES | - | Specify a schema to apply, format `<db.collection:file>`, ex: `db1.coll:./quickstart_users_2018-10-18T09:03Z.json` |
+| --schema | YES | - | Specify a schema to apply, format `<db.collection:file>`, ex: `db1.coll:./quickstart_users_2018_10_18_08_51.json` |
 | --validationAction | - | `ERROR`, `WARN` | Specify the MongoDB Schema Validation Action. |
 | --validationLevel | - | `STRICT`, `MODERATE` | Specify the MongoDB Schema Validation Level. |

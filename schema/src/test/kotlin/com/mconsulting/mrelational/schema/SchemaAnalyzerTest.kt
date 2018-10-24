@@ -1,6 +1,7 @@
 package com.mconsulting.mrelational.schema
 
 import com.mconsulting.mrelational.document
+import com.mconsulting.mrelational.readResourceAsString
 import com.mconsulting.mrelational.registry
 import com.mongodb.MongoClient
 import com.mongodb.MongoClientURI

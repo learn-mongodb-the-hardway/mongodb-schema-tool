@@ -37,6 +37,8 @@ fun Date.toISO8601() : String {
 }
 
 object App : KLogging() {
+    val dateFormat = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")
+
     private val props by lazy {
         Properties().apply {
             load(Config::class.java.classLoader.getResourceAsStream("config.properties"))
@@ -111,7 +113,7 @@ object App : KLogging() {
         // Write the schemas out
         schemas.forEach {
             val json = it.toJson(config.extract.outputFormat)
-            val fileName = "${it.db}_${it.collection}_${Date().toISO8601()}.json"
+            val fileName = "${it.db}_${it.collection}_${dateFormat.format(Date())}.json"
             val file = File("${config.extract.outputDirectory}", fileName)
             logger.info { "writing collection [${it.namespace} schema to ${file.absolutePath}" }
             file.writeText(json)

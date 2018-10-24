@@ -1,11 +1,13 @@
 package com.mconsulting.mrelational
 
+import com.mconsulting.mrelational.schema.extractor.SchemaExtractorExecutorTest
 import org.bson.Document
 import org.bson.codecs.BsonValueCodecProvider
 import org.bson.codecs.DocumentCodecProvider
 import org.bson.codecs.ValueCodecProvider
 import org.bson.codecs.configuration.CodecRegistries
 import org.bson.types.ObjectId
+import java.io.InputStreamReader
 import java.util.*
 
 @DslMarker
@@ -137,3 +139,6 @@ val registry = CodecRegistries.fromProviders(
     BsonValueCodecProvider(),
     ValueCodecProvider()
 )
+
+fun readResourceAsString(resource: String) =
+    InputStreamReader(SchemaExtractorExecutorTest::class.java.classLoader.getResourceAsStream(resource)).readText()

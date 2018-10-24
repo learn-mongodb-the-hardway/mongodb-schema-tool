@@ -23,6 +23,11 @@ dependencies {
     runtime fileTree(dir: 'libs', include: ['*.jar'])
 }
 
+shadowJar {
+    baseName = archivesBaseName
+    classifier = null
+}
+
 distributions {
     main {
         baseName = archivesBaseName

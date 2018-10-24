@@ -70,8 +70,8 @@ java -jar ./{{% jarname %}} --extract --uri mongodb://localhost:27017 --namespac
 This will create a schema file for each of the collections.
 
 ```bash
-./quickstart_users_2018-10-18T08:51Z.json
-./quickstart_sights_2018-10-18T08:51Z.json
+./quickstart_users_2018_10_18_08_51.json
+./quickstart_sights_2018_10_18_08_51.json
 ```
 
 The file name has the following format (<db>_<collection>_<timestamp>.json). It includes a timestamp to
@@ -85,7 +85,7 @@ used with MongoDB to validate documents.
 To apply the the two json files above we execute the following command.
 
 ```bash
-java -jar ./{{% jarname %}} --apply --uri mongodb://localhost:27017 --schema quickstart.users:./quickstart_users_2018-10-18T08:51Z.json --schema quickstart.sights:./quickstart_sights_2018-10-18T08:51Z.json --validationLevel strict --validationAction error
+java -jar ./{{% jarname %}} --apply --uri mongodb://localhost:27017 --schema quickstart.users:./quickstart_users_2018_10_18_08_51.json --schema quickstart.sights:./quickstart_sights_2018_10_18_08_51.json --validationLevel strict --validationAction error
 ```
 
 This will successfully add the two generated validation schemas to their respective collections setting the validation level

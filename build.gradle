@@ -127,17 +127,18 @@ configurations {
 }
 
 dependencies {
-    archives project(path: ':cli-schema', configuration: "archives")
+//    compile project(path: 'cli-schema', configuration: 'shadow')
+    archives project(path: ':cli-schema', configuration: "shadow")
 }
 
 githubRelease {
     token = project.findProperty('githubReleaseToken') ?: ''
-    owner = 'christkv'
-    repo = 'mongo-relational'
+    owner = 'learn-mongodb-the-hardway'
+    repo = 'mongodb-schema-tool'
     name = version
     draft = true
     prerelease = true
-    releaseAssets = configurations.archives.filter { it.name.endsWith("tar") || it.name.endsWith("zip") }
+    releaseAssets = configurations.archives.filter { it.name.endsWith("jar") }
 }
 tasks.githubRelease.dependsOn 'dist'
 
@@ -146,7 +147,7 @@ task clean(type: Delete) {
 }
 
 task dist(type: Copy) {
-    from configurations.archives.filter { it.name.endsWith("tar") || it.name.endsWith("zip") }
+    from configurations.archives.filter { it.name.endsWith("jar") }
     into 'build/distributions'
 }
 
