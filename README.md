@@ -1,5 +1,5 @@
 # MongoDB Schema Extraction Tool
-![Build Status](https://travis-ci.org/learn-mongodb-the-hardway/mongodb-schema-tool.svg?branch=master)
+![Build Status][travis-img]][travis-url]
 
 The Schema Extraction and application tool is a tool to help you work with MongoDB Schema validation.
 
