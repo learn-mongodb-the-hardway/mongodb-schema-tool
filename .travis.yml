@@ -1,0 +1,43 @@
+dist: trusty
+sudo: true
+language: java
+jdk:
+- oraclejdk8
+
+notifications:
+  email:
+    recipients:
+    - christkv@gmail.com
+    on_success: change
+    on_failure: always
+
+branches:
+  only:
+  - master
+
+install:
+- ./gradlew --version
+
+before_script:
+- wget http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-${MONGODB_VERSION}.tgz -O /tmp/mongodb.tgz
+- tar -xvf /tmp/mongodb.tgz
+- mkdir /tmp/data
+- ${PWD}/mongodb-linux-x86_64-${MONGODB_VERSION}/bin/mongod --dbpath /tmp/data --bind_ip 127.0.0.1 &> /dev/null &
+- export MONGODB_VERSION=${MONGODB_VERSION}
+
+env:
+  global:
+  - CI="travis"
+  matrix:
+  - MONGODB_VERSION=4.0.1
+
+script:
+- ./gradlew test -i -PTRAVIS=true
+
+before_cache:
+- rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+- rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+  - $HOME/.gradle/caches/
+  - $HOME/.gradle/wrapper/
