@@ -85,12 +85,17 @@ class ApplyConfig(parser: ArgParser) {
         val namespaceParts = parts.first().split(".")
 
         // Validate the namespace
-        if (namespaceParts.size != 2) {
+        if (namespaceParts.size < 2) {
             throw IllegalArgumentException("--schema must be of format <db.collection:file>, ex: [db1.coll:./quickstart_users_2018-10-18T09:03Z.json]")
         }
 
         // Create a validation Level
-        FileNamespace(namespaceParts.first(), namespaceParts.last(), validationLevel, validationAction, file)
+        FileNamespace(
+            namespaceParts.first(),
+            namespaceParts.subList(1, namespaceParts.size).joinToString("."),
+            validationLevel,
+            validationAction,
+            file)
     }
 }
 
